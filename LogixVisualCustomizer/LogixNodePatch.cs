@@ -20,16 +20,23 @@ namespace LogixVisualCustomizer
             if (!LogixVisualCustomizer.EnableCustomLogixVisuals)
                 return;
 
-            var background = root[0][0].GetComponent<Image>();
+            var backgroundSlot = root.FindInChildren("Image");
+
+            var background = backgroundSlot.GetComponent<Image>();
             background.Tint.Value = LogixVisualCustomizer.NodeBackgroundColor;
-            background.Sprite.Target = root.GetBackgroundProvider();
+            background.Sprite.Target = root.GetNodeBackgroundProvider();
 
-            var border = root.Find("Image").AddSlot("Border");
-            border.OrderOffset = -1;
+            var borderSlot = backgroundSlot.AddSlot("Border");
+            borderSlot.OrderOffset = -1;
 
-            var borderImage = border.AttachComponent<Image>();
+            var borderImage = borderSlot.AttachComponent<Image>();
             borderImage.Tint.Value = LogixVisualCustomizer.NodeBorderColor;
             borderImage.Sprite.Target = root.GetNodeBorderProvider();
+
+            backgroundSlot.ForeachComponentInChildren<Text>(text => text.Color.Value = LogixVisualCustomizer.TextColor);
+
+            foreach (var connector in backgroundSlot.Children.Where(child => child.Name == "Image").Select(child => child.GetComponent<Image>()))
+                connector.Tint.Value = connector.Tint.Value.SetA(1).AddValue(.1f);
         }
     }
 }
