@@ -374,5 +374,9 @@ namespace LogixVisualCustomizer
             leftBackgroundSprite.Borders.Value = LogixVisualCustomizer.LeftBackgroundBorders;
             leftBackgroundSprite.Scale.Value = LogixVisualCustomizer.InputBorderScale;
         }
+
+        //private static SpriteProvider setUpSpriteProvider(string key, IAssetProvider<ITexture2D> defaultTexture, IAssetProvider<ITexture2D> localTexture, Rect localRect, float4 localBorders, float localScale)
+        //{
+        //}
     }
 }

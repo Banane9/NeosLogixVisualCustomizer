@@ -1,4 +1,5 @@
-﻿using FrooxEngine;
+﻿using BaseX;
+using FrooxEngine;
 using FrooxEngine.LogiX;
 using FrooxEngine.UIX;
 using HarmonyLib;
@@ -33,10 +34,19 @@ namespace LogixVisualCustomizer
             borderImage.Tint.Value = LogixVisualCustomizer.NodeBorderColor;
             borderImage.Sprite.Target = root.GetNodeBorderProvider();
 
-            backgroundSlot.ForeachComponentInChildren<Text>(text => text.Color.Value = LogixVisualCustomizer.TextColor);
+            backgroundSlot.ForeachComponentInChildren<Text>(text =>
+            {
+                var textPadding = text.Slot.Parent.AddSlot();
+                textPadding.AttachComponent<LayoutElement>();
+                text.Slot.Parent = textPadding;
+
+                text.Color.Value = LogixVisualCustomizer.TextColor;
+                text.RectTransform.OffsetMin.Value = new float2(8, 0);
+                text.RectTransform.OffsetMax.Value = new float2(-8, 0);
+            }, cacheItems: true);
 
             foreach (var connector in backgroundSlot.Children.Where(child => child.Name == "Image").Select(child => child.GetComponent<Image>()))
-                connector.Tint.Value = connector.Tint.Value.SetA(1).AddValue(.1f);
+                connector.Tint.Value = connector.Tint.Value.SetA(1).AddValueHDR(.1f);
         }
     }
 }

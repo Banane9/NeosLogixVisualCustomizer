@@ -71,19 +71,19 @@ namespace LogixVisualCustomizer
         private static ModConfigurationKey<Rect> LeftBorderRectKey = new ModConfigurationKey<Rect>("LeftBorderRect", "Rect for the Node's borders sprite with only the left corners.", () => new Rect(0, 0, .5f, 1));
 
         [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> NodeBackgroundColorKey = new ModConfigurationKey<color>("NodeBackgroundColor", "Color of the Node's background.", () => new color(.45f));
+        private static ModConfigurationKey<color> NodeBackgroundColorKey = new ModConfigurationKey<color>("NodeBackgroundColor", "Color of the Node's background.", () => new color(.22f));
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> NodeBackgroundScaleKey = new ModConfigurationKey<float>("NodeBackgroundScale", "Scale for the Node's background sprites.", () => .03f);
 
         [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> NodeBorderColorKey = new ModConfigurationKey<color>("NodeBorderColor", "Color of the Node's border.", () => new color(.5f));
+        private static ModConfigurationKey<color> NodeBorderColorKey = new ModConfigurationKey<color>("NodeBorderColor", "Color of the Node's border.", () => new color(.54f));
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> NodeBorderScaleKey = new ModConfigurationKey<float>("NodeBorderScale", "Scale for the Node's borders sprite.", () => .03f);
 
         [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> TextColorKey = new ModConfigurationKey<color>("TextColor", "Color of text on the Node.", () => new color(1));
+        private static ModConfigurationKey<color> TextColorKey = new ModConfigurationKey<color>("TextColor", "Color of text on the Node.", () => new color(.95f));
 
         public override string Author => "Banane9";
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
@@ -117,6 +117,7 @@ namespace LogixVisualCustomizer
         {
             Harmony harmony = new Harmony($"{Author}.{Name}");
             Config = GetConfiguration();
+            Config.OnThisConfigurationChanged += ConfigurationChanged;
             Config.Save(true);
             harmony.PatchAll();
             patchTextFieldInputs(harmony);
@@ -136,6 +137,12 @@ namespace LogixVisualCustomizer
 
                 harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch));
             }
+        }
+
+        private void ConfigurationChanged(ConfigurationChangedEvent configurationChangedEvent)
+        {
+            foreach (var world in Engine.Current.WorldManager.Worlds)
+                world.UpdateCustomizerAssets();
         }
     }
 }

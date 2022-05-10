@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetExtensions.cs" />
-    <Compile Include="BoolInputPatch.cs" />
+    <Compile Include="BoolInputPatches.cs" />
     <Compile Include="LogixNodePatch.cs" />
     <Compile Include="LogixVisualCustomizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
