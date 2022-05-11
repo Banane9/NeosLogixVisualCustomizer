@@ -11,28 +11,34 @@ namespace LogixVisualCustomizer
 {
     internal static class Assets
     {
-        public static StaticTexture2D GetBackgroundTexture(this World world)
+        public static IAssetProvider<ITexture2D> GetBackgroundTexture(this World world)
         {
             const string key = "Logix_CustomBackground_Texture";
 
-            return world.getOrCreateTexture(key, LogixVisualCustomizer.BackgroundSpriteUri);
+            if (LogixVisualCustomizer.UseBackground)
+                return world.getOrCreateTexture(key, LogixVisualCustomizer.BackgroundSpriteUri);
+            else
+                return world.GetSolidBackgroundTexture();
         }
 
-        public static StaticTexture2D GetBackgroundTexture(this Worker worker)
+        public static IAssetProvider<ITexture2D> GetBackgroundTexture(this Worker worker)
         {
             return worker.World.GetBackgroundTexture();
         }
 
-        public static StaticTexture2D GetBorderTexture(this Worker worker)
+        public static IAssetProvider<ITexture2D> GetBorderTexture(this Worker worker)
         {
             return worker.World.GetBorderTexture();
         }
 
-        public static StaticTexture2D GetBorderTexture(this World world)
+        public static IAssetProvider<ITexture2D> GetBorderTexture(this World world)
         {
             const string key = "Logix_CustomBorder_Texture";
 
-            return world.getOrCreateTexture(key, LogixVisualCustomizer.BorderSpriteUri);
+            if (LogixVisualCustomizer.UseBorder)
+                return world.getOrCreateTexture(key, LogixVisualCustomizer.BorderSpriteUri);
+            else
+                return world.GetHiddenBorderTexture();
         }
 
         public static SpriteProvider GetBottomInputBackgroundProvider(this Worker worker)
@@ -333,66 +339,38 @@ namespace LogixVisualCustomizer
                 LogixVisualCustomizer.InputBorderScale);
         }
 
-        public static void UpdateCustomizerAssets(this Worker worker)
+        private static void ensureSettings(this SpriteProvider sprite, IAssetProvider<ITexture2D> defaultTexture, IAssetProvider<ITexture2D> localTexture, Rect localRect, float4 localBorders, float localScale)
         {
-            worker.World.UpdateCustomizerAssets();
+            var textureOverride = sprite.Texture.GetUserOverride(true);
+            textureOverride.CreateOverrideOnWrite.Value = true;
+            textureOverride.Default.Target = defaultTexture;
+            textureOverride.SetOverride(sprite.World.LocalUser, localTexture);
+
+            var rectOverride = sprite.Rect.GetUserOverride(true);
+            rectOverride.CreateOverrideOnWrite.Value = true;
+            rectOverride.Default.Value = new Rect(0, 0, 1, 1);
+            rectOverride.SetOverride(sprite.World.LocalUser, localRect);
+
+            var bordersOverride = sprite.Borders.GetUserOverride(true);
+            bordersOverride.CreateOverrideOnWrite.Value = true;
+            bordersOverride.Default.Value = new float4(.5f, .5f, .5f, .5f);
+            bordersOverride.SetOverride(sprite.World.LocalUser, localBorders);
+
+            var scaleOverride = sprite.Scale.GetUserOverride(true);
+            scaleOverride.CreateOverrideOnWrite.Value = true;
+            scaleOverride.Default.Value = 1;
+            scaleOverride.SetOverride(sprite.World.LocalUser, localScale);
         }
 
-        public static void UpdateCustomizerAssets(this World world)
+        private static void ensureSettings(this StaticTexture2D texture, Uri source)
         {
-            IAssetProvider<ITexture2D> borderTexture = world.GetHiddenBorderTexture();
+            texture.WrapModeU.Value = TextureWrapMode.Clamp;
+            texture.WrapModeV.Value = TextureWrapMode.Clamp;
+            texture.FilterMode.Value = TextureFilterMode.Anisotropic;
 
-            if (LogixVisualCustomizer.UseBorder)
-            {
-                var border = world.GetBorderTexture();
-                border.URL.Value = LogixVisualCustomizer.BorderSpriteUri;
-                borderTexture = border;
-            }
-
-            var nodeBorderSprite = world.GetNodeBorderProvider();
-            nodeBorderSprite.Texture.Target = borderTexture;
-            nodeBorderSprite.Rect.Value = LogixVisualCustomizer.FullBorderRect;
-            nodeBorderSprite.Borders.Value = LogixVisualCustomizer.FullBorderBorders;
-            nodeBorderSprite.Scale.Value = LogixVisualCustomizer.NodeBorderScale;
-
-            var fullBorderSprite = world.GetFullInputBorderProvider();
-            fullBorderSprite.Texture.Target = borderTexture;
-            fullBorderSprite.Rect.Value = LogixVisualCustomizer.FullBorderRect;
-            fullBorderSprite.Borders.Value = LogixVisualCustomizer.FullBorderBorders;
-            fullBorderSprite.Scale.Value = LogixVisualCustomizer.InputBorderScale;
-
-            var leftBordersSprite = world.GetLeftInputBorderProvider();
-            leftBordersSprite.Texture.Target = borderTexture;
-            leftBordersSprite.Rect.Value = LogixVisualCustomizer.LeftBorderRect;
-            leftBordersSprite.Borders.Value = LogixVisualCustomizer.LeftBorderBorders;
-            leftBordersSprite.Scale.Value = LogixVisualCustomizer.NodeBorderScale;
-
-            IAssetProvider<ITexture2D> backgroundTexture = world.GetSolidBackgroundTexture();
-
-            if (LogixVisualCustomizer.UseBackground)
-            {
-                var background = world.GetBackgroundTexture();
-                background.URL.Value = LogixVisualCustomizer.BackgroundSpriteUri;
-                backgroundTexture = background;
-            }
-
-            var nodeBackgroundSprite = world.GetNodeBackgroundProvider();
-            nodeBackgroundSprite.Texture.Target = backgroundTexture;
-            nodeBackgroundSprite.Rect.Value = LogixVisualCustomizer.FullBackgroundRect;
-            nodeBackgroundSprite.Borders.Value = LogixVisualCustomizer.FullBackgroundBorders;
-            nodeBackgroundSprite.Scale.Value = LogixVisualCustomizer.NodeBackgroundScale;
-
-            var fullBackgroundSprite = world.GetFullInputBackgroundProvider();
-            fullBackgroundSprite.Texture.Target = backgroundTexture;
-            fullBackgroundSprite.Rect.Value = LogixVisualCustomizer.FullBackgroundRect;
-            fullBackgroundSprite.Borders.Value = LogixVisualCustomizer.FullBackgroundBorders;
-            fullBackgroundSprite.Scale.Value = LogixVisualCustomizer.InputBorderScale;
-
-            var leftBackgroundSprite = world.GetLeftInputBackgroundProvider();
-            leftBackgroundSprite.Texture.Target = backgroundTexture;
-            leftBackgroundSprite.Rect.Value = LogixVisualCustomizer.LeftBackgroundRect;
-            leftBackgroundSprite.Borders.Value = LogixVisualCustomizer.LeftBackgroundBorders;
-            leftBackgroundSprite.Scale.Value = LogixVisualCustomizer.InputBorderScale;
+            var urlOverride = texture.URL.GetUserOverride(true);
+            urlOverride.CreateOverrideOnWrite.Value = true;
+            urlOverride.SetOverride(texture.World.LocalUser, source);
         }
 
         private static SolidColorTexture getOrCreateSolidColorTexture(this World world, string key, color color)
@@ -416,26 +394,14 @@ namespace LogixVisualCustomizer
         private static SpriteProvider getOrCreateSpriteProvider(this World world, string key, IAssetProvider<ITexture2D> defaultTexture, IAssetProvider<ITexture2D> localTexture, Rect localRect, float4 localBorders, float localScale)
         {
             if (world.KeyOwner(key) is SpriteProvider sprite)
+            {
+                sprite.ensureSettings(defaultTexture, localTexture, localRect, localBorders, localScale);
+
                 return sprite;
+            }
 
             sprite = world.GetCustomizerAssets().AttachComponent<SpriteProvider>();
-
-            var textureOverride = sprite.Texture.GetUserOverride(true);
-            textureOverride.CreateOverrideOnWrite.Value = true;
-            textureOverride.Default.Target = defaultTexture;
-            textureOverride.SetOverride(world.LocalUser, localTexture);
-
-            var rectOverride = sprite.Rect.GetUserOverride(true);
-            rectOverride.CreateOverrideOnWrite.Value = true;
-            rectOverride.SetOverride(world.LocalUser, localRect);
-
-            var bordersOverride = sprite.Borders.GetUserOverride(true);
-            bordersOverride.CreateOverrideOnWrite.Value = true;
-            bordersOverride.SetOverride(world.LocalUser, localBorders);
-
-            var scaleOverride = sprite.Scale.GetUserOverride(true);
-            scaleOverride.CreateOverrideOnWrite.Value = true;
-            scaleOverride.SetOverride(world.LocalUser, localScale);
+            sprite.ensureSettings(defaultTexture, localTexture, localRect, localBorders, localScale);
 
             sprite.AssignKey(key);
 
@@ -445,16 +411,14 @@ namespace LogixVisualCustomizer
         private static StaticTexture2D getOrCreateTexture(this World world, string key, Uri source = null)
         {
             if (world.KeyOwner(key) is StaticTexture2D texture)
+            {
+                texture.ensureSettings(source);
+
                 return texture;
+            }
 
             texture = world.GetCustomizerAssets().AttachComponent<StaticTexture2D>();
-            texture.WrapModeU.Value = TextureWrapMode.Clamp;
-            texture.WrapModeV.Value = TextureWrapMode.Clamp;
-            texture.FilterMode.Value = TextureFilterMode.Anisotropic;
-
-            var urlOverride = texture.URL.GetUserOverride(true);
-            urlOverride.CreateOverrideOnWrite.Value = true;
-            urlOverride.SetOverride(world.LocalUser, source);
+            texture.ensureSettings(source);
 
             world.GetCustomizerAssets().AttachComponent<AssetLoader<ITexture2D>>().Asset.Target = texture;
 

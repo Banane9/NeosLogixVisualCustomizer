@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LogixVisualCustomizer
 {
-    internal static class VisualCustomizingExtensions
+    internal static class VisualCustomizing
     {
         public static void Customize(this Button[] buttons)
         {
@@ -24,7 +24,7 @@ namespace LogixVisualCustomizer
 
         public static void Customize(this Button button, SpriteProvider inputBackground, SpriteProvider inputBorder)
         {
-            button.BaseColor.Value = LogixVisualCustomizer.InputBackgroundColor;
+            button.BaseColor.OverrideWith(SettingOverrides.InputBackgroundColor);
             button.ColorDrivers[0].TintColorMode.Value = InteractionElement.ColorMode.Multiply;
 
             var buttonSlot = button.Slot;
@@ -36,15 +36,31 @@ namespace LogixVisualCustomizer
             borderSlot.OrderOffset = -1;
 
             var borderImage = borderSlot.AttachComponent<Image>();
-            borderImage.Tint.Value = LogixVisualCustomizer.InputBorderColor;
+            borderImage.Tint.OverrideWith(SettingOverrides.InputBorderColor);
             borderImage.Sprite.Target = inputBorder;
 
             var buttonText = buttonSlot.GetComponentInChildren<Text>();
-            buttonText.Color.Value = LogixVisualCustomizer.TextColor;
+            buttonText.Color.OverrideWith(SettingOverrides.TextColor);
 
             var textRect = buttonText.RectTransform;
             textRect.AnchorMin.Value = new float2(0.1f, 0.1f);
             textRect.AnchorMax.Value = new float2(0.9f, 0.9f);
+        }
+
+        public static void CustomizeDisplay(this Text text)
+        {
+            text.Color.OverrideWith(SettingOverrides.TextColor);
+        }
+
+        public static void CustomizeLabel(this Text text)
+        {
+            var textPadding = text.Slot.Parent.AddSlot("TextPadding");
+            textPadding.AttachComponent<LayoutElement>();
+            text.Slot.Parent = textPadding;
+
+            text.Color.OverrideWith(SettingOverrides.TextColor);
+            text.RectTransform.OffsetMin.Value = new float2(8, 0);
+            text.RectTransform.OffsetMax.Value = new float2(-8, 0);
         }
     }
 }

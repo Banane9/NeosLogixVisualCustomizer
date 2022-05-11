@@ -20,6 +20,7 @@ namespace LogixVisualCustomizer
     public class LogixVisualCustomizer : NeosMod
     {
         public static ModConfiguration Config;
+        private static readonly float4 defaultSlices = new float4(0, 0, 1, 1);
         private static readonly MethodInfo onGenerateVisualPatch = typeof(TextFieldPatch).GetMethod(nameof(TextFieldPatch.OnGenerateVisualPrefix), AccessTools.all);
 
         [AutoRegisterConfigKey]
@@ -77,12 +78,12 @@ namespace LogixVisualCustomizer
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
         public override string Name => "LogixVisualCustomizer";
         public override string Version => "1.0.0";
-        internal static float4 BackgroundHorizontalSlices => Config.GetValue(BackgroundHorizontalSlicesKey);
-        internal static Uri BackgroundSpriteUri => new Uri(Config.GetValue(BackgroundSpriteUriKey));
-        internal static float4 BackgroundVerticalSlices => Config.GetValue(BackgroundVerticalSlicesKey);
-        internal static float4 BorderHorizontalSlices => Config.GetValue(BorderHorizontalSlicesKey);
-        internal static Uri BorderSpriteUri => new Uri(Config.GetValue(BorderSpriteUriKey));
-        internal static float4 BorderVerticalSlices => Config.GetValue(BorderVerticalSlicesKey);
+        internal static float4 BackgroundHorizontalSlices => UseBackground ? Config.GetValue(BackgroundHorizontalSlicesKey) : defaultSlices;
+        internal static Uri BackgroundSpriteUri => UseBackground ? new Uri(Config.GetValue(BackgroundSpriteUriKey)) : null;
+        internal static float4 BackgroundVerticalSlices => UseBackground ? Config.GetValue(BackgroundVerticalSlicesKey) : defaultSlices;
+        internal static float4 BorderHorizontalSlices => UseBorder ? Config.GetValue(BorderHorizontalSlicesKey) : defaultSlices;
+        internal static Uri BorderSpriteUri => UseBorder ? new Uri(Config.GetValue(BorderSpriteUriKey)) : null;
+        internal static float4 BorderVerticalSlices => UseBorder ? Config.GetValue(BorderVerticalSlicesKey) : defaultSlices;
         internal static float4 BottomBackgroundBorders => Slices.GetBottomBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static Rect BottomBackgroundRect => Slices.GetBottomRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 BottomBorderBorders => Slices.GetBottomBorders(BorderVerticalSlices, BorderHorizontalSlices);
@@ -121,15 +122,14 @@ namespace LogixVisualCustomizer
         internal static bool UseBackground => !string.IsNullOrWhiteSpace(Config.GetValue(BackgroundSpriteUriKey));
         internal static bool UseBorder => !string.IsNullOrWhiteSpace(Config.GetValue(BorderSpriteUriKey));
         internal static float4 VerticalMiddleBackgroundBorders => Slices.GetVerticalMiddleBorders(BackgroundVerticalSlices);
-        internal static Rect VerticalMiddleBackgroundRect => Slices.GetVerticleMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect VerticalMiddleBackgroundRect => Slices.GetVerticalMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 VerticalMiddleBorderBorders => Slices.GetVerticalMiddleBorders(BorderVerticalSlices);
-        internal static Rect VerticalMiddleBorderRect => Slices.GetVerticleMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect VerticalMiddleBorderRect => Slices.GetVerticalMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
 
         public override void OnEngineInit()
         {
             Harmony harmony = new Harmony($"{Author}.{Name}");
             Config = GetConfiguration();
-            Config.OnThisConfigurationChanged += ConfigurationChanged;
             Config.Save(true);
             harmony.PatchAll();
             patchTextFieldInputs(harmony);
@@ -149,12 +149,6 @@ namespace LogixVisualCustomizer
 
                 harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch.MakeGenericMethod(type)));
             }
-        }
-
-        private void ConfigurationChanged(ConfigurationChangedEvent configurationChangedEvent)
-        {
-            foreach (var world in Engine.Current.WorldManager.Worlds)
-                world.UpdateCustomizerAssets();
         }
     }
 }
