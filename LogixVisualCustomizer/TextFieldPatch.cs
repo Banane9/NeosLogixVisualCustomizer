@@ -35,33 +35,33 @@ namespace LogixVisualCustomizer
                 return true;
 
             var traverse = Traverse.Create(__instance);
+            var leftNull = LogixVisualCustomizer.EnableLeftNullButton;
 
             var minWidth = traverse.Property<float>("MinWidth").Value;
             var fields = traverse.Property<int>("Fields").Value;
 
             var builder = (UIBuilder)traverse.Method("GenerateUI", root, minWidth, 4f * (fields + 1) + 32f * fields).GetValue();
 
-            var inputBackground = root.GetLeftInputBackgroundProvider();
-            var inputBorder = root.GetLeftInputBorderProvider();
+            var inputBackground = leftNull ? root.GetLeftInputBackgroundProvider() : root.GetHorizontalMiddleInputBackgroundProvider();
+            var inputBorder = leftNull ? root.GetLeftInputBorderProvider() : root.GetHorizontalMiddleInputBorderProvider();
 
             if (traverse.Property<bool>("NullButton").Value)
             {
-                builder.HorizontalLayout(10, 0, LogixVisualCustomizer.EnableLeftNullButton ? Alignment.MiddleLeft : Alignment.MiddleRight);
+                builder.HorizontalLayout(4, 0);
                 builder.Style.MinHeight = 32f;
                 builder.Style.MinWidth = 48f;
 
                 var button = builder.Button("∅", AccessTools.MethodDelegate<ButtonEventHandler>(__instance.GetType().BaseType.BaseType.GetMethod("OnSetNull", AccessTools.all), __instance));
+                button.Slot.OrderOffset = leftNull ? -1 : 1;
                 button.Customize(inputBackground, inputBorder);
 
-                inputBackground = root.GetHorizontalMiddleInputBackgroundProvider();
-                inputBorder = root.GetHorizontalMiddleInputBorderProvider();
+                inputBackground = leftNull ? root.GetHorizontalMiddleInputBackgroundProvider() : root.GetLeftInputBackgroundProvider();
+                inputBorder = leftNull ? root.GetHorizontalMiddleInputBorderProvider() : root.GetLeftInputBorderProvider();
             }
 
-            builder.VerticalLayout(4f, 0f, null);
+            var vertical = builder.VerticalLayout(4, 0, null).Slot;
             builder.Style.MinHeight = 32f;
             builder.Style.FlexibleWidth = 1f;
-
-            var vertical = builder.Current;
 
             for (int i = 0; i < fields; i++)
             {

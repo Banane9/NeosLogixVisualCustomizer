@@ -93,7 +93,9 @@ namespace LogixVisualCustomizer
         internal static Rect FullBackgroundRect => Slices.GetFullRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 FullBorderBorders => Slices.GetFullBorders(BorderVerticalSlices, BorderHorizontalSlices);
         internal static Rect FullBorderRect => Slices.GetFullRect(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static float4 HorizontalMiddleBackgroundBorders => Slices.GetHorizontalMiddleBorders(BackgroundHorizontalSlices);
         internal static Rect HorizontalMiddleBackgroundRect => Slices.GetHorizontalMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 HorizontalMiddleBorderBorders => Slices.GetHorizontalMiddleBorders(BorderHorizontalSlices);
         internal static Rect HorizontalMiddleBorderRect => Slices.GetHorizontalMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static color InputBackgroundColor => Config.GetValue(InputBackgroundColorKey);
         internal static float InputBackgroundScale => Config.GetValue(InputBackgroundScaleKey);
@@ -118,8 +120,10 @@ namespace LogixVisualCustomizer
         internal static Rect TopBorderRect => Slices.GetTopRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static bool UseBackground => !string.IsNullOrWhiteSpace(Config.GetValue(BackgroundSpriteUriKey));
         internal static bool UseBorder => !string.IsNullOrWhiteSpace(Config.GetValue(BorderSpriteUriKey));
-        internal static Rect VerticleMiddleBackgroundRect => Slices.GetVerticleMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
-        internal static Rect VerticleMiddleBorderRect => Slices.GetVerticleMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static float4 VerticalMiddleBackgroundBorders => Slices.GetVerticalMiddleBorders(BackgroundVerticalSlices);
+        internal static Rect VerticalMiddleBackgroundRect => Slices.GetVerticleMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 VerticalMiddleBorderBorders => Slices.GetVerticalMiddleBorders(BorderVerticalSlices);
+        internal static Rect VerticalMiddleBorderRect => Slices.GetVerticleMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
 
         public override void OnEngineInit()
         {

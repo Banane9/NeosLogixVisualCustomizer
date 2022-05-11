@@ -74,7 +74,15 @@ namespace LogixVisualCustomizer
 
         public static Slot GetCustomizerAssets(this World world)
         {
-            return world.AssetsSlot.FindOrAdd("LogixCustomizerAssets");
+            const string key = "LogixCustomizerAssets";
+
+            if (world.AssetsSlot.Find(key) is Slot slot)
+                return slot;
+
+            slot = world.AssetsSlot.AddSlot(key);
+            slot.AttachComponent<AssetOptimizationBlock>();
+
+            return slot;
         }
 
         public static SpriteProvider GetFullInputBackgroundProvider(this Worker worker)
@@ -128,7 +136,7 @@ namespace LogixVisualCustomizer
             return world.getOrCreateSpriteProvider(key,
                 world.GetSolidBackgroundTexture(), world.GetBackgroundTexture(),
                 LogixVisualCustomizer.HorizontalMiddleBackgroundRect,
-                new float4(0),
+                LogixVisualCustomizer.HorizontalMiddleBackgroundBorders,
                 LogixVisualCustomizer.InputBackgroundScale);
         }
 
@@ -149,7 +157,7 @@ namespace LogixVisualCustomizer
             return world.getOrCreateSpriteProvider(key,
                 world.GetHiddenBorderTexture(), world.GetBorderTexture(),
                 LogixVisualCustomizer.HorizontalMiddleBorderRect,
-                new float4(0),
+                LogixVisualCustomizer.HorizontalMiddleBorderBorders,
                 LogixVisualCustomizer.InputBorderScale);
         }
 
@@ -299,8 +307,8 @@ namespace LogixVisualCustomizer
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetSolidBackgroundTexture(), world.GetBackgroundTexture(),
-                LogixVisualCustomizer.VerticleMiddleBackgroundRect,
-                new float4(0),
+                LogixVisualCustomizer.VerticalMiddleBackgroundRect,
+                LogixVisualCustomizer.VerticalMiddleBackgroundBorders,
                 LogixVisualCustomizer.InputBackgroundScale);
         }
 
@@ -320,8 +328,8 @@ namespace LogixVisualCustomizer
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetHiddenBorderTexture(), world.GetBorderTexture(),
-                LogixVisualCustomizer.VerticleMiddleBorderRect,
-                new float4(0),
+                LogixVisualCustomizer.VerticalMiddleBorderRect,
+                LogixVisualCustomizer.VerticalMiddleBorderBorders,
                 LogixVisualCustomizer.InputBorderScale);
         }
 
@@ -393,6 +401,9 @@ namespace LogixVisualCustomizer
                 return texture;
 
             texture = world.GetCustomizerAssets().AttachComponent<SolidColorTexture>();
+            texture.WrapModeU.Value = TextureWrapMode.Repeat;
+            texture.WrapModeV.Value = TextureWrapMode.Repeat;
+            texture.FilterMode.Value = TextureFilterMode.Point;
             texture.Color.Value = color;
 
             world.GetCustomizerAssets().AttachComponent<AssetLoader<ITexture2D>>().Asset.Target = texture;
