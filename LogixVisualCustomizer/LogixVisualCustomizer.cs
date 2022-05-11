@@ -23,28 +23,28 @@ namespace LogixVisualCustomizer
         private static readonly MethodInfo onGenerateVisualPatch = typeof(TextFieldPatch).GetMethod(nameof(TextFieldPatch.OnGenerateVisualPrefix), AccessTools.all);
 
         [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float4> BackgroundHorizontalSlicesKey = new ModConfigurationKey<float4>("BackgroundHorizontalSlices", "Positions for start and end of bottom, as well as top slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
         private static ModConfigurationKey<string> BackgroundSpriteUriKey = new ModConfigurationKey<string>("BackgroundSpriteUri", "Uri of the sprite for the background. Leave empty for default square.", () => "neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png");
 
         [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float4> BackgroundVerticalSlicesKey = new ModConfigurationKey<float4>("BackgroundVerticalSlices", "Positions for start and end of left, as well as right slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float4> BorderHorizontalSlicesKey = new ModConfigurationKey<float4>("BorderHorizontalSlicesKey", "Positions for start and end of bottom, as well as top slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
         private static ModConfigurationKey<string> BorderSpriteUriKey = new ModConfigurationKey<string>("BorderSpriteUri", "Uri of the sprite for the border. Leave empty to remove border.", () => "neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png");
+
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float4> BorderVerticalSlicesKey = new ModConfigurationKey<float4>("BorderVerticalSlices", "Positions for start and end of left, as well as right slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> EnableCustomLogixVisualsKey = new ModConfigurationKey<bool>("EnableCustomLogixVisuals", "Use the custom layout and settings here to generate LogiX visuals.", () => true);
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> EnableLeftNullButtonKey = new ModConfigurationKey<bool>("EnableLeftNullButton", "Swap the null Button on some inputs to the left.", () => true);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> FullBackgroundBordersKey = new ModConfigurationKey<float4>("FullBackgroundBorders", "Borders for the Node's background sprite with all corners.", () => new float4(.5f, .5f, .5f, .5f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<Rect> FullBackgroundRectKey = new ModConfigurationKey<Rect>("FullBackgroundRect", "Rect for the Node's background sprite with all corners.", () => new Rect(0, 0, 1, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> FullBorderBordersKey = new ModConfigurationKey<float4>("FullBorderBorders", "Borders for the Node's borders sprite with all corners.", () => new float4(.5f, .5f, .5f, .5f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<Rect> FullBorderRectKey = new ModConfigurationKey<Rect>("FullBorderRect", "Rect for the Node's borders sprite with all corners.", () => new Rect(0, 0, 1, 1));
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> InputBackgroundColorKey = new ModConfigurationKey<color>("InputBackgroundColor", "Color of the Node's Input's background.", () => new color(.26f));
@@ -57,18 +57,6 @@ namespace LogixVisualCustomizer
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> InputBorderScaleKey = new ModConfigurationKey<float>("InputBorderScale", "Scale for the Node's Input's borders sprites.", () => .03f);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> LeftBackgroundBordersKey = new ModConfigurationKey<float4>("LeftBackgroundBorders", "Borders for the Node's background sprite with only the left corners.", () => new float4(1, .5f, 0, .5f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<Rect> LeftBackgroundRectKey = new ModConfigurationKey<Rect>("LeftBackgroundRect", "Rect for the Node's background sprite with only the left corners.", () => new Rect(0, 0, .5f, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> LeftBorderBordersKey = new ModConfigurationKey<float4>("LeftBorderBorders", "Borders for the Node's borders sprite with only the left corners.", () => new float4(1, .5f, 0, .5f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<Rect> LeftBorderRectKey = new ModConfigurationKey<Rect>("LeftBorderRect", "Rect for the Node's borders sprite with only the left corners.", () => new Rect(0, 0, .5f, 1));
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> NodeBackgroundColorKey = new ModConfigurationKey<color>("NodeBackgroundColor", "Color of the Node's background.", () => new color(.22f));
@@ -89,29 +77,49 @@ namespace LogixVisualCustomizer
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
         public override string Name => "LogixVisualCustomizer";
         public override string Version => "1.0.0";
+        internal static float4 BackgroundHorizontalSlices => Config.GetValue(BackgroundHorizontalSlicesKey);
         internal static Uri BackgroundSpriteUri => new Uri(Config.GetValue(BackgroundSpriteUriKey));
+        internal static float4 BackgroundVerticalSlices => Config.GetValue(BackgroundVerticalSlicesKey);
+        internal static float4 BorderHorizontalSlices => Config.GetValue(BorderHorizontalSlicesKey);
         internal static Uri BorderSpriteUri => new Uri(Config.GetValue(BorderSpriteUriKey));
+        internal static float4 BorderVerticalSlices => Config.GetValue(BorderVerticalSlicesKey);
+        internal static float4 BottomBackgroundBorders => Slices.GetBottomBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect BottomBackgroundRect => Slices.GetBottomRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 BottomBorderBorders => Slices.GetBottomBorders(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect BottomBorderRect => Slices.GetBottomRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static bool EnableCustomLogixVisuals => Config.GetValue(EnableCustomLogixVisualsKey);
         internal static bool EnableLeftNullButton => Config.GetValue(EnableLeftNullButtonKey);
-        internal static float4 FullBackgroundBorders => Config.GetValue(FullBackgroundBordersKey);
-        internal static Rect FullBackgroundRect => Config.GetValue(FullBackgroundRectKey);
-        internal static float4 FullBorderBorders => Config.GetValue(FullBorderBordersKey);
-        internal static Rect FullBorderRect => Config.GetValue(FullBorderRectKey);
+        internal static float4 FullBackgroundBorders => Slices.GetFullBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect FullBackgroundRect => Slices.GetFullRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 FullBorderBorders => Slices.GetFullBorders(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect FullBorderRect => Slices.GetFullRect(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect HorizontalMiddleBackgroundRect => Slices.GetHorizontalMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect HorizontalMiddleBorderRect => Slices.GetHorizontalMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static color InputBackgroundColor => Config.GetValue(InputBackgroundColorKey);
         internal static float InputBackgroundScale => Config.GetValue(InputBackgroundScaleKey);
         internal static color InputBorderColor => Config.GetValue(InputBorderColorKey);
         internal static float InputBorderScale => Config.GetValue(InputBorderScaleKey);
-        internal static float4 LeftBackgroundBorders => Config.GetValue(LeftBackgroundBordersKey);
-        internal static Rect LeftBackgroundRect => Config.GetValue(LeftBackgroundRectKey);
-        internal static float4 LeftBorderBorders => Config.GetValue(LeftBorderBordersKey);
-        internal static Rect LeftBorderRect => Config.GetValue(LeftBorderRectKey);
+        internal static float4 LeftBackgroundBorders => Slices.GetLeftBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect LeftBackgroundRect => Slices.GetLeftRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 LeftBorderBorders => Slices.GetLeftBorders(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect LeftBorderRect => Slices.GetLeftRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static color NodeBackgroundColor => Config.GetValue(NodeBackgroundColorKey);
         internal static float NodeBackgroundScale => Config.GetValue(NodeBackgroundScaleKey);
         internal static color NodeBorderColor => Config.GetValue(NodeBorderColorKey);
         internal static float NodeBorderScale => Config.GetValue(NodeBorderScaleKey);
+        internal static float4 RightBackgroundBorders => Slices.GetRightBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect RightBackgroundRect => Slices.GetRightRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 RightBorderBorders => Slices.GetRightBorders(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect RightBorderRect => Slices.GetRightRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static color TextColor => Config.GetValue(TextColorKey);
+        internal static float4 TopBackgroundBorders => Slices.GetTopBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect TopBackgroundRect => Slices.GetTopRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static float4 TopBorderBorders => Slices.GetTopBorders(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static Rect TopBorderRect => Slices.GetTopRect(BorderVerticalSlices, BorderHorizontalSlices);
         internal static bool UseBackground => !string.IsNullOrWhiteSpace(Config.GetValue(BackgroundSpriteUriKey));
         internal static bool UseBorder => !string.IsNullOrWhiteSpace(Config.GetValue(BorderSpriteUriKey));
+        internal static Rect VerticleMiddleBackgroundRect => Slices.GetVerticleMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
+        internal static Rect VerticleMiddleBorderRect => Slices.GetVerticleMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
 
         public override void OnEngineInit()
         {
@@ -135,7 +143,7 @@ namespace LogixVisualCustomizer
                 var createdType = baseType.MakeGenericType(type);
                 var methodInfo = createdType.GetMethod("OnGenerateVisual", AccessTools.allDeclared);
 
-                harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch));
+                harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch.MakeGenericMethod(type)));
             }
         }
 

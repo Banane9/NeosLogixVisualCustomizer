@@ -29,37 +29,51 @@ namespace LogixVisualCustomizer
 
         [HarmonyPrefix]
         [HarmonyPatch("OnGenerateVisual")]
-        internal static bool OnGenerateVisualPrefix(LogixNode __instance, Slot root)
+        internal static bool OnGenerateVisualPrefix<T>(TextFieldNodeBase<T> __instance, Slot root)
         {
             if (!LogixVisualCustomizer.EnableCustomLogixVisuals)
                 return true;
 
             var traverse = Traverse.Create(__instance);
-            var instanceType = __instance.GetType();
-            LogixVisualCustomizer.Msg("GenerateVisual for " + __instance.GetType());
 
-            var minWidth = (float)traverse.Property("MinWidth").GetValue();
-            var fields = (int)traverse.Property("Fields").GetValue();
+            var minWidth = traverse.Property<float>("MinWidth").Value;
+            var fields = traverse.Property<int>("Fields").Value;
 
             var builder = (UIBuilder)traverse.Method("GenerateUI", root, minWidth, 4f * (fields + 1) + 32f * fields).GetValue();
 
-            if ((bool)traverse.Property("NullButton").GetValue())
+            var inputBackground = root.GetLeftInputBackgroundProvider();
+            var inputBorder = root.GetLeftInputBorderProvider();
+
+            if (traverse.Property<bool>("NullButton").Value)
             {
                 builder.HorizontalLayout(10, 0, LogixVisualCustomizer.EnableLeftNullButton ? Alignment.MiddleLeft : Alignment.MiddleRight);
                 builder.Style.MinHeight = 32f;
                 builder.Style.MinWidth = 48f;
 
-                builder.Button("∅", AccessTools.MethodDelegate<ButtonEventHandler>(__instance.GetType().BaseType.BaseType.GetMethod("OnSetNull", AccessTools.all), __instance));
+                var button = builder.Button("∅", AccessTools.MethodDelegate<ButtonEventHandler>(__instance.GetType().BaseType.BaseType.GetMethod("OnSetNull", AccessTools.all), __instance));
+                button.Customize(inputBackground, inputBorder);
+
+                inputBackground = root.GetHorizontalMiddleInputBackgroundProvider();
+                inputBorder = root.GetHorizontalMiddleInputBorderProvider();
             }
 
             builder.VerticalLayout(4f, 0f, null);
             builder.Style.MinHeight = 32f;
             builder.Style.FlexibleWidth = 1f;
 
+            var vertical = builder.Current;
+
             for (int i = 0; i < fields; i++)
             {
                 traverse.Method("GenerateTextField", builder, i).GetValue();
             }
+
+            var buttons = vertical.GetComponentsInChildren<Button>().ToArray();
+
+            if (buttons.Length > 1)
+                buttons.Customize();
+            else
+                buttons[0].Customize(inputBackground, inputBorder);
 
             return false;
         }
