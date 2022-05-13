@@ -1,5 +1,6 @@
 ﻿using FrooxEngine;
 using FrooxEngine.LogiX;
+using FrooxEngine.LogiX.Utility;
 using FrooxEngine.UIX;
 using HarmonyLib;
 using System;
@@ -12,15 +13,16 @@ using System.Threading.Tasks;
 namespace LogixVisualCustomizer
 {
     [HarmonyPatch]
-    internal static class DualInputOperatorPatch
+    internal static class ModifiableInputNodePatches
     {
         [HarmonyTargetMethods]
         public static IEnumerable<MethodBase> TargetMethods()
         {
             return LogixVisualCustomizer.GenerateGenericMethodTargets(
-                typeof(DualInputOperator<>),
                 LogixVisualCustomizer.neosPrimitiveTypes,
-                "OnGenerateVisual");
+                "OnGenerateVisual",
+                typeof(DualInputOperator<>),
+                typeof(IndexOfFirstMatch<>));
         }
 
         [HarmonyPostfix]

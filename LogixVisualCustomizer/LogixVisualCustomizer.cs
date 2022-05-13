@@ -151,10 +151,10 @@ namespace LogixVisualCustomizer
             return button.ColorDrivers.Count > 0;
         }
 
-        public static IEnumerable<MethodBase> GenerateGenericMethodTargets(Type baseType, IEnumerable<Type> genericTypes, string methodName)
+        public static IEnumerable<MethodBase> GenerateGenericMethodTargets(IEnumerable<Type> genericTypes, string methodName, params Type[] baseTypes)
         {
             return genericTypes
-                .Select(type => baseType.MakeGenericType(type))
+                .SelectMany(type => baseTypes.Select(baseType => baseType.MakeGenericType(type)))
                 .Select(type => type.GetMethod(methodName, AccessTools.all));
         }
 

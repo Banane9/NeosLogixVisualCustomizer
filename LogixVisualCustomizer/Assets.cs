@@ -16,7 +16,7 @@ namespace LogixVisualCustomizer
 
         public static IAssetProvider<ITexture2D> GetBackgroundTexture(this World world)
         {
-            const string key = "Logix_CustomBackground_Texture";
+            const string key = "LogixCustomizer_CustomBackground_Texture";
 
             return world.getOrCreateTexture(key, !LogixVisualCustomizer.UseBackground, LogixVisualCustomizer.BackgroundSpriteUri);
         }
@@ -33,7 +33,7 @@ namespace LogixVisualCustomizer
 
         public static IAssetProvider<ITexture2D> GetBorderTexture(this World world)
         {
-            const string key = "Logix_CustomBorder_Texture";
+            const string key = "LogixCustomizer_CustomBorder_Texture";
 
             return world.getOrCreateTexture(key, !LogixVisualCustomizer.UseBorder, LogixVisualCustomizer.BorderSpriteUri);
         }
@@ -45,7 +45,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetBottomInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_BottomInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_BottomInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -61,7 +61,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetBottomInputBorderProvider(this World world)
         {
-            const string key = "Logix_BottomInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_BottomInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -95,7 +95,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetFullInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_FullInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_FullInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -111,7 +111,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetFullInputBorderProvider(this World world)
         {
-            const string key = "Logix_FullInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_FullInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -154,7 +154,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetHorizontalMiddleInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_HorizontalMiddleInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_HorizontalMiddleInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -175,7 +175,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetHorizontalMiddleInputBorderProvider(this World world)
         {
-            const string key = "Logix_HorizontalMiddleInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_HorizontalMiddleInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -191,7 +191,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetLeftInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_LeftInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_LeftInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -207,7 +207,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetLeftInputBorderProvider(this World world)
         {
-            const string key = "Logix_LeftInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_LeftInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -223,7 +223,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetNodeBackgroundProvider(this World world)
         {
-            const string key = "Logix_NodeBackground_SpriteProvider";
+            const string key = "LogixCustomizer_NodeBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -239,7 +239,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetNodeBorderProvider(this World world)
         {
-            const string key = "Logix_NodeBorder_SpriteProvider";
+            const string key = "LogixCustomizer_NodeBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -255,7 +255,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetRightInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_RightInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_RightInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -271,7 +271,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetRightInputBorderProvider(this World world)
         {
-            const string key = "Logix_RightInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_RightInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -287,7 +287,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetTopInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_TopInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_TopInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -303,7 +303,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetTopInputBorderProvider(this World world)
         {
-            const string key = "Logix_TopInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_TopInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
@@ -323,8 +323,8 @@ namespace LogixVisualCustomizer
             {
                 if (total == 1)
                 {
-                    inputBackground = world.GetFullInputBackgroundProvider();
-                    inputBorder = world.GetFullInputBorderProvider();
+                    inputBackground = world.GetLeftInputBackgroundProvider();
+                    inputBorder = world.GetLeftInputBorderProvider();
                 }
                 else
                 {
@@ -351,7 +351,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetVerticalMiddleInputBackgroundProvider(this World world)
         {
-            const string key = "Logix_VerticalMiddleInputBackground_SpriteProvider";
+            const string key = "LogixCustomizer_VerticalMiddleInputBackground_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBackgroundTexture(),
@@ -367,7 +367,7 @@ namespace LogixVisualCustomizer
 
         public static SpriteProvider GetVerticalMiddleInputBorderProvider(this World world)
         {
-            const string key = "Logix_VerticalMiddleInputBorder_SpriteProvider";
+            const string key = "LogixCustomizer_VerticalMiddleInputBorder_SpriteProvider";
 
             return world.getOrCreateSpriteProvider(key,
                 world.GetBorderTexture(),
