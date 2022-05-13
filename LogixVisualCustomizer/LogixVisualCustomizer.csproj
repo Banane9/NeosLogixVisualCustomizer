@@ -60,6 +60,8 @@
     <Compile Include="Assets.cs" />
     <Compile Include="ButtonInputPatches.cs" />
     <Compile Include="DisplayPatches.cs" />
+    <Compile Include="DualInputOperatorPatch.cs" />
+    <Compile Include="DynamicVariableInputPatch.cs" />
     <Compile Include="SettingOverrides.cs" />
     <Compile Include="IgnoreAccessChecks.cs" />
     <Compile Include="LogixNodePatch.cs" />

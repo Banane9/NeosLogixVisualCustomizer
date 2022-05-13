@@ -19,9 +19,10 @@ namespace LogixVisualCustomizer
 {
     public class LogixVisualCustomizer : NeosMod
     {
+        public static readonly Type[] neosPrimitiveAndEnumTypes;
+        public static readonly Type[] neosPrimitiveTypes;
         public static ModConfiguration Config;
         private static readonly float4 defaultSlices = new float4(0, 0, 1, 1);
-        private static readonly MethodInfo onGenerateVisualPatch = typeof(TextFieldPatch).GetMethod(nameof(TextFieldPatch.OnGenerateVisualPrefix), AccessTools.all);
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float4> BackgroundHorizontalSlicesKey = new ModConfigurationKey<float4>("BackgroundHorizontalSlices", "Positions for start and end of bottom, as well as top slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
@@ -46,6 +47,9 @@ namespace LogixVisualCustomizer
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> EnableLeftNullButtonKey = new ModConfigurationKey<bool>("EnableLeftNullButton", "Swap the null Button on some inputs to the left.", () => true);
+
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<bool> IndividualInputsKey = new ModConfigurationKey<bool>("IndividualInputs", "Treats each input individually, with a full background and border on each, rather than splitting a continuous one.", () => false);
 
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> InputBackgroundColorKey = new ModConfigurationKey<color>("InputBackgroundColor", "Color of the Node's Input's background.", () => new color(.26f));
@@ -98,6 +102,7 @@ namespace LogixVisualCustomizer
         internal static Rect HorizontalMiddleBackgroundRect => Slices.GetHorizontalMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 HorizontalMiddleBorderBorders => Slices.GetHorizontalMiddleBorders(BorderHorizontalSlices);
         internal static Rect HorizontalMiddleBorderRect => Slices.GetHorizontalMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
+        internal static bool IndividualInputs => Config.GetValue(IndividualInputsKey);
         internal static color InputBackgroundColor => Config.GetValue(InputBackgroundColorKey);
         internal static float InputBackgroundScale => Config.GetValue(InputBackgroundScaleKey);
         internal static color InputBorderColor => Config.GetValue(InputBorderColorKey);
@@ -126,29 +131,41 @@ namespace LogixVisualCustomizer
         internal static float4 VerticalMiddleBorderBorders => Slices.GetVerticalMiddleBorders(BorderVerticalSlices);
         internal static Rect VerticalMiddleBorderRect => Slices.GetVerticalMiddleRect(BorderVerticalSlices, BorderHorizontalSlices);
 
-        public override void OnEngineInit()
+        static LogixVisualCustomizer()
         {
-            Harmony harmony = new Harmony($"{Author}.{Name}");
-            Config = GetConfiguration();
-            Config.Save(true);
-            harmony.PatchAll();
-            patchTextFieldInputs(harmony);
+            var traverse = Traverse.Create(typeof(GenericTypes));
+
+            neosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
+                                    .Where(type => type.Name != "String")
+                                    .AddItem(typeof(object))
+                                    .ToArray();
+
+            neosPrimitiveAndEnumTypes = traverse.Field<Type[]>("neosPrimitivesAndEnums").Value
+                                            .Where(type => type.Name != "String")
+                                            .AddItem(typeof(object))
+                                            .ToArray();
         }
 
-        private static void patchTextFieldInputs(Harmony harmony)
+        public static bool ButtonFilter(Button button)
         {
-            var baseType = typeof(TextFieldNodeBase<>);
-            var genericTypes = Traverse.Create(typeof(GenericTypes)).Field<Type[]>("neosPrimitives").Value
-                .Where(type => type.Name != "String")
-                .AddItem(typeof(object));
+            return button.ColorDrivers.Count > 0;
+        }
 
-            foreach (var type in genericTypes)
-            {
-                var createdType = baseType.MakeGenericType(type);
-                var methodInfo = createdType.GetMethod("OnGenerateVisual", AccessTools.allDeclared);
+        public static IEnumerable<MethodBase> GenerateGenericMethodTargets(Type baseType, IEnumerable<Type> genericTypes, string methodName)
+        {
+            return genericTypes
+                .Select(type => baseType.MakeGenericType(type))
+                .Select(type => type.GetMethod(methodName, AccessTools.all));
+        }
 
-                harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch.MakeGenericMethod(type)));
-            }
+        public override void OnEngineInit()
+        {
+            Config = GetConfiguration();
+            Config.Save(true);
+
+            Harmony harmony = new Harmony($"{Author}.{Name}");
+            harmony.PatchAll();
+            TextFieldPatch.Patch(harmony);
         }
     }
 }

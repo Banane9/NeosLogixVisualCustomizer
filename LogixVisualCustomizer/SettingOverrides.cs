@@ -74,6 +74,7 @@ namespace LogixVisualCustomizer
             if (field.World.KeyOwner(key) is ValueMultiDriver<T> multiDriver)
             {
                 multiDriver.Value.ensureUserOverride(setting);
+                multiDriver.trimDriveList();
 
                 return multiDriver;
             }
@@ -92,6 +93,11 @@ namespace LogixVisualCustomizer
                 return (T)(object)setting.getColor();
             else
                 return default;
+        }
+
+        private static void trimDriveList<T>(this ValueMultiDriver<T> multiDriver)
+        {
+            multiDriver.Drives.RemoveAll(drive => drive.Target == null);
         }
     }
 }

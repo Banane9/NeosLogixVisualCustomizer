@@ -11,17 +11,6 @@ namespace LogixVisualCustomizer
 {
     internal static class VisualCustomizing
     {
-        public static void Customize(this Button[] buttons)
-        {
-            for (var i = 0; i < buttons.Length; ++i)
-            {
-                var button = buttons[i];
-
-                button.GetInputProviders(i, buttons.Length, out var inputBackground, out var inputBorder);
-                button.Customize(inputBackground, inputBorder);
-            }
-        }
-
         public static void Customize(this Button button, SpriteProvider inputBackground, SpriteProvider inputBorder)
         {
             button.BaseColor.OverrideWith(SettingOverrides.InputBackgroundColor);
@@ -52,6 +41,17 @@ namespace LogixVisualCustomizer
             text.Color.OverrideWith(SettingOverrides.TextColor);
         }
 
+        public static void CustomizeHorizontal(this Button[] buttons)
+        {
+            for (var i = 0; i < buttons.Length; ++i)
+            {
+                var button = buttons[i];
+
+                button.GetHorizontalInputProviders(i, buttons.Length, out var inputBackground, out var inputBorder);
+                button.Customize(inputBackground, inputBorder);
+            }
+        }
+
         public static void CustomizeLabel(this Text text)
         {
             var textPadding = text.Slot.Parent.AddSlot("TextPadding");
@@ -61,6 +61,17 @@ namespace LogixVisualCustomizer
             text.Color.OverrideWith(SettingOverrides.TextColor);
             text.RectTransform.OffsetMin.Value = new float2(8, 0);
             text.RectTransform.OffsetMax.Value = new float2(-8, 0);
+        }
+
+        public static void CustomizeVertical(this Button[] buttons)
+        {
+            for (var i = 0; i < buttons.Length; ++i)
+            {
+                var button = buttons[i];
+
+                button.GetVerticalInputProviders(i, buttons.Length, out var inputBackground, out var inputBorder);
+                button.Customize(inputBackground, inputBorder);
+            }
         }
     }
 }

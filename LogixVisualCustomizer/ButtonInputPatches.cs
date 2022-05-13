@@ -19,9 +19,9 @@ namespace LogixVisualCustomizer
         [HarmonyPostfix]
         private static void OnGenerateVisualPostfix(Slot root)
         {
-            var buttons = root.GetComponentsInChildren<Button>().ToArray();
+            var buttons = root.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ToArray();
 
-            buttons.Customize();
+            buttons.CustomizeVertical();
         }
 
         [HarmonyTargetMethods]

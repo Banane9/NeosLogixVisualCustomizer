@@ -7,33 +7,36 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace LogixVisualCustomizer
 {
-    //[HarmonyPatch]
     internal static class TextFieldPatch
     {
-        //private static readonly Type textFieldNodeBaseType = typeof();
+        private static readonly MethodInfo onGenerateVisualPatch = typeof(TextFieldPatch).GetMethod(nameof(TextFieldPatch.OnGenerateVisualPrefix), AccessTools.all);
 
-        //[HarmonyPrefix]
-        //[HarmonyPatch("GenerateUI")]
-        //private static bool GenerateUIPrefix(LogixNode __instance)
-        //{
-        //    if (!LogixVisualCustomizer.EnableCustomLogixVisuals)
-        //        return true;
+        public static void Patch(Harmony harmony)
+        {
+            var baseType = typeof(TextFieldNodeBase<>);
+            var genericTypes = Traverse.Create(typeof(GenericTypes)).Field<Type[]>("neosPrimitives").Value
+                .Where(type => type.Name != "String")
+                .AddItem(typeof(object));
 
-        //    return true;
-        //}
+            foreach (var type in genericTypes)
+            {
+                var createdType = baseType.MakeGenericType(type);
+                var methodInfo = createdType.GetMethod("OnGenerateVisual", AccessTools.allDeclared);
+
+                harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch.MakeGenericMethod(type)));
+            }
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch("OnGenerateVisual")]
         internal static bool OnGenerateVisualPrefix<T>(TextFieldNodeBase<T> __instance, Slot root)
         {
-            if (!LogixVisualCustomizer.EnableCustomLogixVisuals)
-                return true;
-
             var traverse = Traverse.Create(__instance);
             var leftNull = LogixVisualCustomizer.EnableLeftNullButton;
 
@@ -68,10 +71,10 @@ namespace LogixVisualCustomizer
                 traverse.Method("GenerateTextField", builder, i).GetValue();
             }
 
-            var buttons = vertical.GetComponentsInChildren<Button>().ToArray();
+            var buttons = vertical.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ToArray();
 
             if (buttons.Length > 1)
-                buttons.Customize();
+                buttons.CustomizeVertical();
             else
                 buttons[0].Customize(inputBackground, inputBorder);
 

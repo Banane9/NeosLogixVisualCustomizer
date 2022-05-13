@@ -14,18 +14,28 @@ namespace LogixVisualCustomizer
     [HarmonyPatch(typeof(LogixNode))]
     internal static class LogixNodePatch
     {
+        private static readonly Type impulseRelayType = typeof(ImpulseRelay);
+        private static readonly Type valueRelayType = typeof(RelayNode<>);
+
         [HarmonyPostfix]
         [HarmonyPatch("GenerateUI")]
-        private static void GenerateUIPostfix(Slot root)
+        private static void GenerateUIPostfix(LogixNode __instance, Slot root)
         {
-            if (!LogixVisualCustomizer.EnableCustomLogixVisuals)
-                return;
-
             var backgroundSlot = root.FindInChildren("Image");
 
             var background = backgroundSlot.GetComponent<Image>();
-            background.Tint.OverrideWith(SettingOverrides.NodeBackgroundColor);
             background.Sprite.Target = root.GetNodeBackgroundProvider();
+
+            if (!__instance.Enabled)
+                background.Tint.Value = __instance.NodeErrorBackground.SetA(1);
+            else if (__instance.NodeBackground != LogixNode.DEFAULT_NODE_BACKGROUND)
+                background.Tint.Value = __instance.NodeBackground.SetA(1);
+            else
+                background.Tint.OverrideWith(SettingOverrides.NodeBackgroundColor);
+
+            var type = __instance.GetType();
+            if (type == impulseRelayType || (type.IsGenericType && type.GetGenericTypeDefinition() == valueRelayType))
+                return;
 
             var borderSlot = backgroundSlot.AddSlot("Border");
             borderSlot.OrderOffset = -1;
