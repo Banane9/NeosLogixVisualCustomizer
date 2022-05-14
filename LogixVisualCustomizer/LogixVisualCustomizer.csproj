@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets.cs" />
+    <Compile Include="AudioClipInputPatch.cs" />
     <Compile Include="ButtonInputPatches.cs" />
     <Compile Include="DisplayPatches.cs" />
     <Compile Include="LogixHelperPatch.cs" />

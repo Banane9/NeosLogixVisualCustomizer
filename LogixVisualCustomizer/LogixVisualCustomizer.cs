@@ -137,11 +137,13 @@ namespace LogixVisualCustomizer
 
             neosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
                                     .Where(type => type.Name != "String")
+                                    .AddItem(typeof(dummy))
                                     .AddItem(typeof(object))
                                     .ToArray();
 
             neosPrimitiveAndEnumTypes = traverse.Field<Type[]>("neosPrimitivesAndEnums").Value
                                             .Where(type => type.Name != "String")
+                                            .AddItem(typeof(dummy))
                                             .AddItem(typeof(object))
                                             .ToArray();
         }
@@ -154,7 +156,7 @@ namespace LogixVisualCustomizer
         public static IEnumerable<MethodBase> GenerateGenericMethodTargets(IEnumerable<Type> genericTypes, string methodName, params Type[] baseTypes)
         {
             return genericTypes
-                .SelectMany(type => baseTypes.Select(baseType => baseType.MakeGenericType(type)))
+                .SelectMany(type => baseTypes.Select(baseType => baseType.IsGenericTypeDefinition ? baseType.MakeGenericType(type) : baseType))
                 .Select(type => type.GetMethod(methodName, AccessTools.all));
         }
 

@@ -23,7 +23,7 @@ namespace LogixVisualCustomizer
             {
                 sprite.Texture.Target = LogixHelper.GetConnectorTexture(world, dimensions, isOutput, isImpulse);
 
-                sprite.Rect.Value = isImpulse || isOutput ? new Rect(0f, 0f, 1f, 1f) : new Rect(1, 0, 1, 1);
+                sprite.Rect.Value = isImpulse || isOutput ? new Rect(0f, 0f, 1f, 1f) : new Rect(-1, 0, 1, 1);
             }, 1, false, false, world.GetCustomizerAssets);
 
             return false;

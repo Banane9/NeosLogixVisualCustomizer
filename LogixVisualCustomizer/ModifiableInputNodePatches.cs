@@ -1,5 +1,7 @@
 ﻿using FrooxEngine;
 using FrooxEngine.LogiX;
+using FrooxEngine.LogiX.Operators;
+using FrooxEngine.LogiX.ProgramFlow;
 using FrooxEngine.LogiX.Utility;
 using FrooxEngine.UIX;
 using HarmonyLib;
@@ -22,7 +24,12 @@ namespace LogixVisualCustomizer
                 LogixVisualCustomizer.neosPrimitiveTypes,
                 "OnGenerateVisual",
                 typeof(DualInputOperator<>),
-                typeof(IndexOfFirstMatch<>));
+                typeof(IndexOfFirstMatch<>),
+                typeof(Multiplexer<>),
+                typeof(Demultiplexer<>),
+                typeof(ImpulseMultiplexer),
+                typeof(ImpulseDemultiplexer),
+                typeof(PickRandom<>));
         }
 
         [HarmonyPostfix]

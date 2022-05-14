@@ -11,6 +11,18 @@ namespace LogixVisualCustomizer
 {
     internal static class VisualCustomizing
     {
+        public static Slot AddBorder(this Slot root, SpriteProvider sprite, string tintSetting, long orderOffset = -1)
+        {
+            var borderSlot = root.AddSlot("Border");
+            borderSlot.OrderOffset = orderOffset;
+
+            var borderImage = borderSlot.AttachComponent<Image>();
+            borderImage.Tint.OverrideWith(tintSetting);
+            borderImage.Sprite.Target = sprite;
+
+            return borderSlot;
+        }
+
         public static void Customize(this Button button, SpriteProvider inputBackground, SpriteProvider inputBorder)
         {
             button.BaseColor.OverrideWith(SettingOverrides.InputBackgroundColor);
@@ -21,12 +33,7 @@ namespace LogixVisualCustomizer
             var buttonImage = buttonSlot.GetComponent<Image>();
             buttonImage.Sprite.Target = inputBackground;
 
-            var borderSlot = buttonSlot.AddSlot("Border");
-            borderSlot.OrderOffset = -1;
-
-            var borderImage = borderSlot.AttachComponent<Image>();
-            borderImage.Tint.OverrideWith(SettingOverrides.InputBorderColor);
-            borderImage.Sprite.Target = inputBorder;
+            buttonSlot.AddBorder(inputBorder, SettingOverrides.InputBorderColor);
 
             var buttonText = buttonSlot.GetComponentInChildren<Text>();
             buttonText.Color.OverrideWith(SettingOverrides.TextColor);
