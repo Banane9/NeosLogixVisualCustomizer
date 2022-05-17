@@ -21,7 +21,7 @@ namespace LogixVisualCustomizer
         public static IEnumerable<MethodBase> TargetMethods()
         {
             return LogixVisualCustomizer.GenerateGenericMethodTargets(
-                LogixVisualCustomizer.neosPrimitiveTypes,
+                LogixVisualCustomizer.NeosPrimitiveTypes,
                 "OnGenerateVisual",
                 typeof(DualInputOperator<>),
                 typeof(IndexOfFirstMatch<>),

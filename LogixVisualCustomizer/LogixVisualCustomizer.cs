@@ -19,8 +19,11 @@ namespace LogixVisualCustomizer
 {
     public class LogixVisualCustomizer : NeosMod
     {
-        public static readonly Type[] neosPrimitiveAndEnumTypes;
-        public static readonly Type[] neosPrimitiveTypes;
+        public static readonly Type[] NeosPrimitiveAndEnumTypes;
+        public static readonly Type[] NeosPrimitiveTypes;
+        public static readonly MethodInfo PrimitiveMemberEditorOnReset = typeof(PrimitiveMemberEditor).GetMethod("OnReset", AccessTools.allDeclared);
+        public static readonly MethodInfo RefEditorRemovePressed = typeof(RefEditor).GetMethod("RemovePressed", AccessTools.allDeclared);
+        public static readonly MethodInfo RefEditorSetReference = typeof(RefEditor).GetMethod("SetReference", AccessTools.allDeclared);
         public static ModConfiguration Config;
         private static readonly float4 defaultSlices = new float4(0, 0, 1, 1);
 
@@ -135,13 +138,13 @@ namespace LogixVisualCustomizer
         {
             var traverse = Traverse.Create(typeof(GenericTypes));
 
-            neosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
+            NeosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
                                     .Where(type => type.Name != "String")
                                     .AddItem(typeof(dummy))
                                     .AddItem(typeof(object))
                                     .ToArray();
 
-            neosPrimitiveAndEnumTypes = traverse.Field<Type[]>("neosPrimitivesAndEnums").Value
+            NeosPrimitiveAndEnumTypes = traverse.Field<Type[]>("neosPrimitivesAndEnums").Value
                                             .Where(type => type.Name != "String")
                                             .AddItem(typeof(dummy))
                                             .AddItem(typeof(object))
