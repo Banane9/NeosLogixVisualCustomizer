@@ -16,17 +16,18 @@ namespace LogixVisualCustomizer
     internal static class TextFieldPatch
     {
         private static readonly MethodInfo onGenerateVisualPatch = typeof(TextFieldPatch).GetMethod(nameof(TextFieldPatch.OnGenerateVisualPrefix), AccessTools.all);
+        private static readonly Dictionary<Type, MethodInfo> onSetNullMethods = new Dictionary<Type, MethodInfo>();
+        private static readonly Type textFieldNodeBaseType = typeof(TextFieldNodeBase<>);
 
         public static void Patch(Harmony harmony)
         {
-            var baseType = typeof(TextFieldNodeBase<>);
             var genericTypes = Traverse.Create(typeof(GenericTypes)).Field<Type[]>("neosPrimitives").Value
                 .Where(type => type.Name != "String")
                 .AddItem(typeof(object));
 
             foreach (var type in genericTypes)
             {
-                var createdType = baseType.MakeGenericType(type);
+                var createdType = textFieldNodeBaseType.MakeGenericType(type);
                 var methodInfo = createdType.GetMethod("OnGenerateVisual", AccessTools.allDeclared);
 
                 harmony.Patch(methodInfo, new HarmonyMethod(onGenerateVisualPatch.MakeGenericMethod(type)));
@@ -51,10 +52,10 @@ namespace LogixVisualCustomizer
             if (traverse.Property<bool>("NullButton").Value)
             {
                 builder.HorizontalLayout(4, 0);
-                builder.Style.MinHeight = 32f;
-                builder.Style.MinWidth = 48f;
+                builder.Style.MinHeight = 32;
+                builder.Style.MinWidth = 32;
 
-                var button = builder.Button("∅", AccessTools.MethodDelegate<ButtonEventHandler>(__instance.GetType().BaseType.BaseType.GetMethod("OnSetNull", AccessTools.all), __instance));
+                var button = builder.Button("∅", __instance.getOnSetNull());
                 button.Slot.OrderOffset = leftNull ? -1 : 1;
                 button.Customize(inputBackground, inputBorder);
 
@@ -63,8 +64,8 @@ namespace LogixVisualCustomizer
             }
 
             var vertical = builder.VerticalLayout(4, 0, null).Slot;
-            builder.Style.MinHeight = 32f;
-            builder.Style.FlexibleWidth = 1f;
+            builder.Style.MinHeight = 32;
+            builder.Style.FlexibleWidth = 1;
 
             for (int i = 0; i < fields; i++)
             {
@@ -79,6 +80,22 @@ namespace LogixVisualCustomizer
                 buttons[0].Customize(inputBackground, inputBorder);
 
             return false;
+        }
+
+        private static ButtonEventHandler getOnSetNull<T>(this TextFieldNodeBase<T> instance)
+        {
+            var type = instance.GetType();
+
+            if (!onSetNullMethods.TryGetValue(type, out var method))
+            {
+                while (!type.IsGenericType || type.GetGenericTypeDefinition() != textFieldNodeBaseType)
+                    type = type.BaseType;
+
+                method = type.GetMethod("OnSetNull", AccessTools.allDeclared);
+                onSetNullMethods.Add(instance.GetType(), method);
+            }
+
+            return AccessTools.MethodDelegate<ButtonEventHandler>(method, instance);
         }
     }
 }
