@@ -68,7 +68,7 @@ namespace LogixVisualCustomizer
             var checkers = builder.Image(NeosAssets.Common.Backgrounds.TransparentLight64);
             alphaColorImage.Slot.Parent = checkers.Slot;
 
-            var borderTransform = colorPanelRoot.AddBorder(root.GetFullInputBorderProvider(), SettingOverrides.InputBorderColor, 1).GetComponent<RectTransform>();
+            var borderTransform = colorPanelRoot.AddBorder(root.GetFullInputBorderProvider(), LogixVisualCustomizer.InputBorderColorKey, 1).GetComponent<RectTransform>();
             borderTransform.OffsetMin.Value = new float2(0, 8);
             borderTransform.OffsetMax.Value = new float2(0, -8);
         }

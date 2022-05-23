@@ -32,7 +32,7 @@ namespace LogixVisualCustomizer
             else if (__instance.NodeBackground != LogixNode.DEFAULT_NODE_BACKGROUND)
                 background.Tint.Value = __instance.NodeBackground.SetA(1);
             else
-                background.Tint.OverrideWith(SettingOverrides.NodeBackgroundColor);
+                background.Tint.DriveFromSharedSetting(LogixVisualCustomizer.NodeBackgroundColorKey, LogixVisualCustomizer.Config);
 
             var type = __instance.GetType();
             if (__instance is ImpulseRelay || __instance is ICastNode || (type.IsGenericType && type.GetGenericTypeDefinition() == valueRelayType))
@@ -44,7 +44,7 @@ namespace LogixVisualCustomizer
             borderSlot.OrderOffset = -1;
 
             var borderImage = borderSlot.AttachComponent<Image>();
-            borderImage.Tint.OverrideWith(SettingOverrides.NodeBorderColor);
+            borderImage.Tint.DriveFromSharedSetting(LogixVisualCustomizer.NodeBorderColorKey, LogixVisualCustomizer.Config);
             borderImage.Sprite.Target = root.GetNodeBorderProvider();
 
             backgroundSlot.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeLabel, cacheItems: true);

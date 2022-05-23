@@ -19,10 +19,10 @@ namespace LogixVisualCustomizer
 
         private static readonly Type colorType = typeof(color);
 
-        public static void OverrideWith<T>(this Sync<T> field, string setting)
-        {
-            field.GetMultiDriver(setting).Drives.Add().ForceLink(field);
-        }
+        //public static void OverrideWith<T>(this Sync<T> field, string setting)
+        //{
+        //    field.GetMultiDriver(setting).Drives.Add().ForceLink(field);
+        //}
 
         private static void ensureUserOverride<T>(this Sync<T> field, string setting)
         {

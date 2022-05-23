@@ -1,6 +1,7 @@
 ﻿using BaseX;
 using FrooxEngine;
 using FrooxEngine.UIX;
+using NeosModLoader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,13 @@ namespace LogixVisualCustomizer
 {
     internal static class VisualCustomizing
     {
-        public static Slot AddBorder(this Slot root, SpriteProvider sprite, string tintSetting, long orderOffset = -1)
+        public static Slot AddBorder(this Slot root, SpriteProvider sprite, ModConfigurationKey<color> tintConfigurationKey, long orderOffset = -1)
         {
             var borderSlot = root.AddSlot("Border");
             borderSlot.OrderOffset = orderOffset;
 
             var borderImage = borderSlot.AttachComponent<Image>();
-            borderImage.Tint.OverrideWith(tintSetting);
+            borderImage.Tint.DriveFromSharedSetting(tintConfigurationKey, LogixVisualCustomizer.Config);
             borderImage.Sprite.Target = sprite;
 
             return borderSlot;
@@ -25,7 +26,7 @@ namespace LogixVisualCustomizer
 
         public static void Customize(this Button button, SpriteProvider inputBackground, SpriteProvider inputBorder)
         {
-            button.BaseColor.OverrideWith(SettingOverrides.InputBackgroundColor);
+            button.BaseColor.DriveFromSharedSetting(LogixVisualCustomizer.InputBackgroundColorKey, LogixVisualCustomizer.Config);
             button.ColorDrivers[0].TintColorMode.Value = InteractionElement.ColorMode.Multiply;
 
             var buttonSlot = button.Slot;
@@ -33,10 +34,10 @@ namespace LogixVisualCustomizer
             var buttonImage = buttonSlot.GetComponent<Image>();
             buttonImage.Sprite.Target = inputBackground;
 
-            buttonSlot.AddBorder(inputBorder, SettingOverrides.InputBorderColor);
+            buttonSlot.AddBorder(inputBorder, LogixVisualCustomizer.InputBorderColorKey);
 
             var buttonText = buttonSlot.GetComponentInChildren<Text>();
-            buttonText.Color.OverrideWith(SettingOverrides.TextColor);
+            buttonText.CustomizeDisplay();
 
             var textRect = buttonText.RectTransform;
             textRect.AnchorMin.Value = new float2(0.1f, 0.1f);
@@ -45,7 +46,7 @@ namespace LogixVisualCustomizer
 
         public static void CustomizeDisplay(this Text text)
         {
-            text.Color.OverrideWith(SettingOverrides.TextColor);
+            text.Color.DriveFromSharedSetting(LogixVisualCustomizer.TextColorKey, LogixVisualCustomizer.Config);
         }
 
         public static void CustomizeHorizontal(this Button[] buttons)
@@ -65,7 +66,7 @@ namespace LogixVisualCustomizer
             textPadding.AttachComponent<LayoutElement>();
             text.Slot.Parent = textPadding;
 
-            text.Color.OverrideWith(SettingOverrides.TextColor);
+            text.CustomizeDisplay();
             text.RectTransform.OffsetMin.Value = new float2(8, 0);
             text.RectTransform.OffsetMax.Value = new float2(-8, 0);
         }

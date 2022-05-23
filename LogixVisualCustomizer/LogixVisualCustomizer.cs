@@ -25,71 +25,77 @@ namespace LogixVisualCustomizer
         public static readonly MethodInfo RefEditorRemovePressed = typeof(RefEditor).GetMethod("RemovePressed", AccessTools.allDeclared);
         public static readonly MethodInfo RefEditorSetReference = typeof(RefEditor).GetMethod("SetReference", AccessTools.allDeclared);
         public static ModConfiguration Config;
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float4> BackgroundHorizontalSlicesKey = new ModConfigurationKey<float4>("BackgroundHorizontalSlices", "Positions for start and end of bottom, as well as top slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<TextureFilterMode> BackgroundSpriteFilterKey = new ModConfigurationKey<TextureFilterMode>("BackgroundSpriteFilter", "", () => TextureFilterMode.Anisotropic, true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<Uri> BackgroundSpriteUriKey = new ModConfigurationKey<Uri>("BackgroundSpriteUri", "Uri of the sprite for the background. Leave empty for default square.", () => new Uri("neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png"));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float4> BackgroundVerticalSlicesKey = new ModConfigurationKey<float4>("BackgroundVerticalSlices", "Positions for start and end of left, as well as right slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float4> BorderHorizontalSlicesKey = new ModConfigurationKey<float4>("BorderHorizontalSlicesKey", "Positions for start and end of bottom, as well as top slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<TextureFilterMode> BorderSpriteFilterKey = new ModConfigurationKey<TextureFilterMode>("BorderSpriteFilter", "", () => TextureFilterMode.Anisotropic, true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<Uri> BorderSpriteUriKey = new ModConfigurationKey<Uri>("BorderSpriteUri", "Uri of the sprite for the border. Leave empty to remove border.", () => new Uri("neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png"));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float4> BorderVerticalSlicesKey = new ModConfigurationKey<float4>("BorderVerticalSlices", "Positions for start and end of left, as well as right slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<bool> EnableCustomLogixVisualsKey = new ModConfigurationKey<bool>("EnableCustomLogixVisuals", "Use the custom layout and settings here to generate LogiX visuals.", () => true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<bool> EnableLeftNullButtonKey = new ModConfigurationKey<bool>("EnableLeftNullButton", "Swap the null Button on some inputs to the left.", () => true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<bool> IndividualInputsKey = new ModConfigurationKey<bool>("IndividualInputs", "Treats each input individually, with a full background and border on each, rather than splitting a continuous one.", () => false);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<color> InputBackgroundColorKey = new ModConfigurationKey<color>("InputBackgroundColor", "Color of the Node's Input's background.", () => new color(.26f));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float> InputBackgroundScaleKey = new ModConfigurationKey<float>("InputBackgroundScale", "Scale for the Node's Input's background sprites.", () => .03f);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<color> InputBorderColorKey = new ModConfigurationKey<color>("InputBorderColor", "Color of the Node's Input's border.", () => new color(.16f));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float> InputBorderScaleKey = new ModConfigurationKey<float>("InputBorderScale", "Scale for the Node's Input's borders sprites.", () => .03f);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<color> NodeBackgroundColorKey = new ModConfigurationKey<color>("NodeBackgroundColor", "Color of the Node's background.", () => new color(.22f));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float> NodeBackgroundScaleKey = new ModConfigurationKey<float>("NodeBackgroundScale", "Scale for the Node's background sprites.", () => .03f);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<color> NodeBorderColorKey = new ModConfigurationKey<color>("NodeBorderColor", "Color of the Node's border.", () => new color(.54f));
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<float> NodeBorderScaleKey = new ModConfigurationKey<float>("NodeBorderScale", "Scale for the Node's borders sprite.", () => .03f);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<color> TextColorKey = new ModConfigurationKey<color>("TextColor", "Color of text on the Node.", () => new color(.95f));
+
         private static readonly float4 defaultSlices = new float4(0, 0, 1, 1);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> BackgroundHorizontalSlicesKey = new ModConfigurationKey<float4>("BackgroundHorizontalSlices", "Positions for start and end of bottom, as well as top slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<string> BackgroundSpriteUriKey = new ModConfigurationKey<string>("BackgroundSpriteUri", "Uri of the sprite for the background. Leave empty for default square.", () => "neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png");
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> BackgroundVerticalSlicesKey = new ModConfigurationKey<float4>("BackgroundVerticalSlices", "Positions for start and end of left, as well as right slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> BorderHorizontalSlicesKey = new ModConfigurationKey<float4>("BorderHorizontalSlicesKey", "Positions for start and end of bottom, as well as top slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<string> BorderSpriteUriKey = new ModConfigurationKey<string>("BorderSpriteUri", "Uri of the sprite for the border. Leave empty to remove border.", () => "neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png");
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float4> BorderVerticalSlicesKey = new ModConfigurationKey<float4>("BorderVerticalSlices", "Positions for start and end of left, as well as right slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<bool> EnableCustomLogixVisualsKey = new ModConfigurationKey<bool>("EnableCustomLogixVisuals", "Use the custom layout and settings here to generate LogiX visuals.", () => true);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<bool> EnableLeftNullButtonKey = new ModConfigurationKey<bool>("EnableLeftNullButton", "Swap the null Button on some inputs to the left.", () => true);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<bool> IndividualInputsKey = new ModConfigurationKey<bool>("IndividualInputs", "Treats each input individually, with a full background and border on each, rather than splitting a continuous one.", () => false);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> InputBackgroundColorKey = new ModConfigurationKey<color>("InputBackgroundColor", "Color of the Node's Input's background.", () => new color(.26f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float> InputBackgroundScaleKey = new ModConfigurationKey<float>("InputBackgroundScale", "Scale for the Node's Input's background sprites.", () => .03f);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> InputBorderColorKey = new ModConfigurationKey<color>("InputBorderColor", "Color of the Node's Input's border.", () => new color(.16f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float> InputBorderScaleKey = new ModConfigurationKey<float>("InputBorderScale", "Scale for the Node's Input's borders sprites.", () => .03f);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> NodeBackgroundColorKey = new ModConfigurationKey<color>("NodeBackgroundColor", "Color of the Node's background.", () => new color(.22f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float> NodeBackgroundScaleKey = new ModConfigurationKey<float>("NodeBackgroundScale", "Scale for the Node's background sprites.", () => .03f);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> NodeBorderColorKey = new ModConfigurationKey<color>("NodeBorderColor", "Color of the Node's border.", () => new color(.54f));
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<float> NodeBorderScaleKey = new ModConfigurationKey<float>("NodeBorderScale", "Scale for the Node's borders sprite.", () => .03f);
-
-        [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> TextColorKey = new ModConfigurationKey<color>("TextColor", "Color of text on the Node.", () => new color(.95f));
-
         public override string Author => "Banane9";
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
         public override string Name => "LogixVisualCustomizer";
         public override string Version => "1.0.0";
         internal static float4 BackgroundHorizontalSlices => UseBackground ? Config.GetValue(BackgroundHorizontalSlicesKey) : defaultSlices;
-        internal static Uri BackgroundSpriteUri => UseBackground ? new Uri(Config.GetValue(BackgroundSpriteUriKey)) : null;
+        internal static Uri BackgroundSpriteUri => UseBackground ? Config.GetValue(BackgroundSpriteUriKey) : null;
         internal static float4 BackgroundVerticalSlices => UseBackground ? Config.GetValue(BackgroundVerticalSlicesKey) : defaultSlices;
         internal static float4 BorderHorizontalSlices => UseBorder ? Config.GetValue(BorderHorizontalSlicesKey) : defaultSlices;
-        internal static Uri BorderSpriteUri => UseBorder ? new Uri(Config.GetValue(BorderSpriteUriKey)) : null;
+        internal static Uri BorderSpriteUri => UseBorder ? Config.GetValue(BorderSpriteUriKey) : null;
         internal static float4 BorderVerticalSlices => UseBorder ? Config.GetValue(BorderVerticalSlicesKey) : defaultSlices;
         internal static float4 BottomBackgroundBorders => Slices.GetBottomBorders(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static Rect BottomBackgroundRect => Slices.GetBottomRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
@@ -127,8 +133,8 @@ namespace LogixVisualCustomizer
         internal static Rect TopBackgroundRect => Slices.GetTopRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 TopBorderBorders => Slices.GetTopBorders(BorderVerticalSlices, BorderHorizontalSlices);
         internal static Rect TopBorderRect => Slices.GetTopRect(BorderVerticalSlices, BorderHorizontalSlices);
-        internal static bool UseBackground => !string.IsNullOrWhiteSpace(Config.GetValue(BackgroundSpriteUriKey));
-        internal static bool UseBorder => !string.IsNullOrWhiteSpace(Config.GetValue(BorderSpriteUriKey));
+        internal static bool UseBackground => Config.GetValue(BackgroundSpriteUriKey) != null;
+        internal static bool UseBorder => Config.GetValue(BorderSpriteUriKey) != null;
         internal static float4 VerticalMiddleBackgroundBorders => Slices.GetVerticalMiddleBorders(BackgroundVerticalSlices);
         internal static Rect VerticalMiddleBackgroundRect => Slices.GetVerticalMiddleRect(BackgroundVerticalSlices, BackgroundHorizontalSlices);
         internal static float4 VerticalMiddleBorderBorders => Slices.GetVerticalMiddleBorders(BorderVerticalSlices);
@@ -149,6 +155,21 @@ namespace LogixVisualCustomizer
                                             .AddItem(typeof(dummy))
                                             .AddItem(typeof(object))
                                             .ToArray();
+
+            InputBackgroundColorKey.SetSharedDefault(color.White);
+            InputBorderColorKey.SetSharedDefault(color.White.SetA(0));
+
+            NodeBackgroundColorKey.SetSharedDefault(LogixNode.DEFAULT_NODE_BACKGROUND);
+            NodeBorderColorKey.SetSharedDefault(color.White.SetA(0));
+
+            TextColorKey.SetSharedDefault(color.Black);
+
+            // Both pure white (4² and 8²), but have to be different to prevent asset cleanup merging them together
+            BackgroundSpriteUriKey.SetSharedDefault(new Uri("neosdb:///a321d57906e8771eab07f7909bf6fd8ad908a4fad6c6df36632fb1303808b50e.webp"));
+            BorderSpriteUriKey.SetSharedDefault(new Uri("neosdb:///c58b6a6570f385c8ca45895b3ecd530a14d2fd77a5c8f54b579ff79f9204419a.webp"));
+
+            BackgroundSpriteFilterKey.SetSharedDefault(TextureFilterMode.Point);
+            BorderSpriteFilterKey.SetSharedDefault(TextureFilterMode.Point);
         }
 
         public static bool ButtonFilter(Button button)

@@ -13,6 +13,8 @@ namespace LogixVisualCustomizer
     {
         public static readonly string AssetsSlotName = "SharedSettings";
 
+        private static readonly HashSet<string> removeOverrideOnNaturalDefaultSharedKeys = new HashSet<string>();
+
         public static void AddDrive<T>(this ValueMultiDriver<T> multiDriver, IField<T> field)
         {
             multiDriver.Drives.Add().Target = field;
@@ -23,25 +25,30 @@ namespace LogixVisualCustomizer
             multiDriver.Drives.Add().Target = field;
         }
 
-        public static void DriveFromSharedSetting<T>(this IField<T> field, ModConfigurationKey<T> configurationKey)
+        public static void DriveFromSharedSetting<T>(this IField<T> field, ModConfigurationKey<T> configurationKey, ModConfiguration config = null)
         {
-            field.World.GetSharedMultiDriver(configurationKey).AddDrive(field);
+            field.World.GetSharedMultiDriver(configurationKey, config).AddDrive(field);
         }
 
-        public static ValueMultiDriver<T> GetSharedMultiDriver<T>(this World world, ModConfigurationKey<T> configurationKey)
+        public static T GetSharedDefault<T>(this ModConfigurationKey<T> configurationKey)
+        {
+            return DefaultManager<T>.GetDefault(configurationKey);
+        }
+
+        public static ValueMultiDriver<T> GetSharedMultiDriver<T>(this World world, ModConfigurationKey<T> configurationKey, ModConfiguration config = null)
         {
             var key = configurationKey.getWorldKey("MultiDriver");
 
             if (!(world.KeyOwner(key) is ValueMultiDriver<T> multiDriver))
                 multiDriver = world.createSharedComponent<ValueMultiDriver<T>>(key);
 
-            world.GetSharedUserOverride(configurationKey).Target.Target = multiDriver.Value;
+            world.GetSharedUserOverride(configurationKey, config).Target.Target = multiDriver.Value;
             multiDriver.trimDriveList();
 
             return multiDriver;
         }
 
-        public static ValueUserOverride<T> GetSharedUserOverride<T>(this World world, ModConfigurationKey<T> configurationKey)
+        public static ValueUserOverride<T> GetSharedUserOverride<T>(this World world, ModConfigurationKey<T> configurationKey, ModConfiguration config = null)
         {
             var key = configurationKey.getWorldKey("VUO");
 
@@ -54,6 +61,16 @@ namespace LogixVisualCustomizer
             }
 
             vuo.CreateOverrideOnWrite.Value = true;
+
+            if (config != null)
+            {
+                var value = config.GetValue(configurationKey);
+
+                if (Equals(value, default(T)))
+                    vuo.RemoveOverride(world.LocalUser);
+                else
+                    vuo.SetOverride(world.LocalUser, config.GetValue(configurationKey));
+            }
 
             return vuo;
         }
@@ -83,9 +100,27 @@ namespace LogixVisualCustomizer
             return world.IsKeyInUse(configurationKey.getWorldKey("VUO"));
         }
 
-        public static void SetSharedDefault<T>(ModConfigurationKey<T> configurationKey, T newDefault)
+        public static void SetSharedDefault<T>(this ModConfigurationKey<T> configurationKey, T newDefault, bool removeOverrideOnNaturalDefault = true)
         {
+            if (removeOverrideOnNaturalDefault)
+                removeOverrideOnNaturalDefaultSharedKeys.Add(configurationKey.getSharedKey());
+
             DefaultManager<T>.SetDefault(configurationKey, newDefault);
+        }
+
+        public static void SetSharedValue<T>(this World world, ModConfigurationKey<T> configurationKey, T value)
+        {
+            var vuo = world.GetSharedUserOverride(configurationKey);
+
+            if (Equals(value, default(T)) && removeOverrideOnNaturalDefaultSharedKeys.Contains(configurationKey.getSharedKey()))
+                vuo.RemoveOverride(world.LocalUser);
+            else
+                vuo.SetOverride(world.LocalUser, value);
+        }
+
+        public static void SetSharedValue<T>(this World world, ModConfigurationKey<T> configurationKey, ModConfiguration config)
+        {
+            world.GetSharedUserOverride(configurationKey, config);
         }
 
         private static T createSharedComponent<T>(this World world, string key) where T : Component, new()
@@ -117,7 +152,7 @@ namespace LogixVisualCustomizer
         }
 
         /// <summary>
-        /// This handles the shared defaults and capsule subscribing to the configuration changed event while being able to pass the generic parameter to the handling method.
+        /// This handles the shared defaults and capsules subscribing to the any configuration changed event while being able to pass the generic parameter to the handling method.
         /// </summary>
         /// <typeparam name="T">The type of the config keys.</typeparam>
         private static class DefaultManager<T>
@@ -163,17 +198,19 @@ namespace LogixVisualCustomizer
 
                 sharedDefaults[sharedKey] = newDefault;
 
-                foreach (var world in Engine.Current.WorldManager.Worlds.Where(world => world.HasSharedSetting(configurationKey)))
-                    GetSharedUserOverride(world, configurationKey).Default.Value = newDefault;
+                // WorldManager may be null when defaults are set in static constructor of a mod
+                if (Engine.Current.WorldManager != null)
+                    foreach (var world in Engine.Current.WorldManager.Worlds.Where(world => world.HasSharedSetting(configurationKey)))
+                        GetSharedUserOverride(world, configurationKey).Default.Value = newDefault;
             }
 
             private static void onAnyConfigurationChanged(ConfigurationChangedEvent configurationChangedEvent)
             {
                 // Make sure it's the right type
                 // If it has a default, it's a setting that was used for sharing
-                if (configurationChangedEvent.Key is ModConfigurationKey<T> configurationKey && HasDefault(configurationKey))
+                if (Engine.Current.WorldManager != null && configurationChangedEvent.Key is ModConfigurationKey<T> configurationKey && HasDefault(configurationKey))
                     foreach (var world in Engine.Current.WorldManager.Worlds.Where(world => world.HasSharedSetting(configurationKey)))
-                        GetSharedUserOverride(world, configurationKey).SetOverride(world.LocalUser, configurationChangedEvent.Config.GetValue(configurationKey));
+                        world.RunSynchronously(() => world.SetSharedValue(configurationKey, configurationChangedEvent.Config));
             }
         }
     }
