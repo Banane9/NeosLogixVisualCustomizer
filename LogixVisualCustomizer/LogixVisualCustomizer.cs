@@ -33,7 +33,10 @@ namespace LogixVisualCustomizer
         internal static ModConfigurationKey<TextureFilterMode> BackgroundSpriteFilterKey = new ModConfigurationKey<TextureFilterMode>("BackgroundSpriteFilter", "", () => TextureFilterMode.Anisotropic, true);
 
         [AutoRegisterConfigKey]
-        internal static ModConfigurationKey<Uri> BackgroundSpriteUriKey = new ModConfigurationKey<Uri>("BackgroundSpriteUri", "Uri of the sprite for the background. Leave empty for default square.", () => new Uri("neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png"));
+        internal static ModConfigurationKey<Uri> BackgroundSpriteUriKey = new ModConfigurationKey<Uri>("BackgroundSpriteUri", "", () => new Uri("neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png"), true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<string> BackgroundSpriteUriStringKey = new ModConfigurationKey<string>("BackgroundSpriteUriString", "Uri of the sprite for the background. Leave empty for default square.", () => "neosdb:///1e64bbda2fb62373fd3b82ae4f96a60daebaff81d690c96bbe03d10871221209.png");
 
         [AutoRegisterConfigKey]
         internal static ModConfigurationKey<float4> BackgroundVerticalSlicesKey = new ModConfigurationKey<float4>("BackgroundVerticalSlices", "Positions for start and end of left, as well as right slices for the background sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
@@ -45,7 +48,10 @@ namespace LogixVisualCustomizer
         internal static ModConfigurationKey<TextureFilterMode> BorderSpriteFilterKey = new ModConfigurationKey<TextureFilterMode>("BorderSpriteFilter", "", () => TextureFilterMode.Anisotropic, true);
 
         [AutoRegisterConfigKey]
-        internal static ModConfigurationKey<Uri> BorderSpriteUriKey = new ModConfigurationKey<Uri>("BorderSpriteUri", "Uri of the sprite for the border. Leave empty to remove border.", () => new Uri("neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png"));
+        internal static ModConfigurationKey<Uri> BorderSpriteUriKey = new ModConfigurationKey<Uri>("BorderSpriteUri", "", () => new Uri("neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png"), true);
+
+        [AutoRegisterConfigKey]
+        internal static ModConfigurationKey<string> BorderSpriteUriStringKey = new ModConfigurationKey<string>("BorderSpriteUriString", "Uri of the sprite for the border. Leave empty to remove border.", () => "neosdb:///518299baeefe744aa609c9b2c77c5930b6593c051b38eba116ff9177e8200a4f.png");
 
         [AutoRegisterConfigKey]
         internal static ModConfigurationKey<float4> BorderVerticalSlicesKey = new ModConfigurationKey<float4>("BorderVerticalSlices", "Positions for start and end of left, as well as right slices for the border sprite. Middle is implicit.", () => new float4(0, .5f, .5f, 1));
@@ -164,9 +170,10 @@ namespace LogixVisualCustomizer
 
             TextColorKey.SetSharedDefault(color.Black);
 
-            // Both pure white (4² and 8²), but have to be different to prevent asset cleanup merging them together
-            BackgroundSpriteUriKey.SetSharedDefault(new Uri("neosdb:///a321d57906e8771eab07f7909bf6fd8ad908a4fad6c6df36632fb1303808b50e.webp"));
-            BorderSpriteUriKey.SetSharedDefault(new Uri("neosdb:///c58b6a6570f385c8ca45895b3ecd530a14d2fd77a5c8f54b579ff79f9204419a.webp"));
+            // Have to be different to prevent asset cleanup merging them together
+            // Background is pure white, while second is pure transparent white
+            BackgroundSpriteUriKey.SetSharedDefault(new Uri("neosdb:///c58b6a6570f385c8ca45895b3ecd530a14d2fd77a5c8f54b579ff79f9204419a.webp"));
+            BorderSpriteUriKey.SetSharedDefault(new Uri("neosdb:///83b067d41e136787fb9426759a7d4279549967e4c3b50669193eb9aba5ffd43b.webp"));
 
             BackgroundSpriteFilterKey.SetSharedDefault(TextureFilterMode.Point);
             BorderSpriteFilterKey.SetSharedDefault(TextureFilterMode.Point);
@@ -187,11 +194,26 @@ namespace LogixVisualCustomizer
         public override void OnEngineInit()
         {
             Config = GetConfiguration();
+            Config.OnThisConfigurationChanged += OnConfigurationChanged;
             Config.Save(true);
 
             Harmony harmony = new Harmony($"{Author}.{Name}");
             harmony.PatchAll();
             TextFieldPatch.Patch(harmony);
+        }
+
+        private void OnConfigurationChanged(ConfigurationChangedEvent changeEvent)
+        {
+            if (changeEvent.Key == BackgroundSpriteUriStringKey || changeEvent.Key == BorderSpriteUriStringKey)
+            {
+                if (!Uri.TryCreate((string)Config.GetValue(changeEvent.Key), UriKind.Absolute, out var uri))
+                    uri = null;
+
+                if (changeEvent.Key == BackgroundSpriteUriStringKey)
+                    Config.Set(BackgroundSpriteUriKey, uri);
+                else if (changeEvent.Key == BorderSpriteUriStringKey)
+                    Config.Set(BorderSpriteUriKey, uri);
+            }
         }
     }
 }
