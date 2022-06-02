@@ -24,6 +24,14 @@ namespace LogixVisualCustomizer
             return borderSlot;
         }
 
+        public static void Customize(this Button button)
+        {
+            var inputBackground = button.GetFullInputBackgroundProvider();
+            var inputBorder = button.GetFullInputBorderProvider();
+
+            button.Customize(inputBackground, inputBorder);
+        }
+
         public static void Customize(this Button button, SpriteProvider inputBackground, SpriteProvider inputBorder)
         {
             button.BaseColor.DriveFromSharedSetting(LogixVisualCustomizer.InputBackgroundColorKey, LogixVisualCustomizer.Config);

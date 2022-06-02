@@ -44,7 +44,7 @@ namespace LogixVisualCustomizer
             var minWidth = traverse.Property<float>("MinWidth").Value;
             var fields = traverse.Property<int>("Fields").Value;
 
-            var builder = (UIBuilder)traverse.Method("GenerateUI", root, minWidth, 4f * (fields + 1) + 32f * fields).GetValue();
+            var builder = traverse.Method("GenerateUI", root, minWidth, 4f * (fields + 1) + 32f * fields).GetValue<UIBuilder>();
 
             var inputBackground = leftNull ? root.GetLeftInputBackgroundProvider() : root.GetHorizontalMiddleInputBackgroundProvider();
             var inputBorder = leftNull ? root.GetLeftInputBorderProvider() : root.GetHorizontalMiddleInputBorderProvider();

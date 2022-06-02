@@ -52,7 +52,7 @@ namespace LogixVisualCustomizer
                 var editor = Traverse.Create(memberEditor);
                 editor.Field<RelayRef<IField>>("_target").Value.Target = instance.Field<Sync<string>>("_variableName").Value;
 
-                var builder = (UIBuilder)instance.Method("GenerateUI", root, 384f, 76f).GetValue();
+                var builder = instance.Method("GenerateUI", root, 384f, 76f).GetValue<UIBuilder>();
 
                 root.GetComponentInChildren<LayoutElement>().FlexibleHeight.Value = 1;
 

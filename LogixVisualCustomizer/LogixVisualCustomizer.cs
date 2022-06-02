@@ -19,6 +19,7 @@ namespace LogixVisualCustomizer
 {
     public class LogixVisualCustomizer : NeosMod
     {
+        public static readonly Type[] NeosEnumTypes;
         public static readonly Type[] NeosPrimitiveAndEnumTypes;
         public static readonly Type[] NeosPrimitiveTypes;
         public static readonly MethodInfo PrimitiveMemberEditorOnReset = typeof(PrimitiveMemberEditor).GetMethod("OnReset", AccessTools.allDeclared);
@@ -161,6 +162,8 @@ namespace LogixVisualCustomizer
                                             .AddItem(typeof(dummy))
                                             .AddItem(typeof(object))
                                             .ToArray();
+
+            NeosEnumTypes = traverse.Field<Type[]>("commonEnums").Value;
 
             InputBackgroundColorKey.SetSharedDefault(color.White);
             InputBorderColorKey.SetSharedDefault(color.White.SetA(0));

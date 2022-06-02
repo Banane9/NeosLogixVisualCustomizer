@@ -25,11 +25,7 @@ namespace LogixVisualCustomizer
 
             if (__instance.GetType() == impulseInputType)
             {
-                var inputBackground = root.GetFullInputBackgroundProvider();
-                var inputBorder = root.GetFullInputBorderProvider();
-
-                buttons[0].Customize(inputBackground, inputBorder);
-
+                buttons[0].Customize();
                 return;
             }
 
