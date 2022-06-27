@@ -151,19 +151,18 @@ namespace LogixVisualCustomizer
         {
             var traverse = Traverse.Create(typeof(GenericTypes));
 
+            NeosEnumTypes = AccessTools.GetTypesFromAssembly(typeof(EnumInput<>).Assembly)
+                                .Concat(AccessTools.GetTypesFromAssembly(typeof(float4).Assembly))
+                                .Where(type => type.IsEnum && !type.IsNested)
+                                .ToArray();
+
             NeosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
                                     .Where(type => type.Name != "String")
                                     .AddItem(typeof(dummy))
                                     .AddItem(typeof(object))
                                     .ToArray();
 
-            NeosPrimitiveAndEnumTypes = traverse.Field<Type[]>("neosPrimitivesAndEnums").Value
-                                            .Where(type => type.Name != "String")
-                                            .AddItem(typeof(dummy))
-                                            .AddItem(typeof(object))
-                                            .ToArray();
-
-            NeosEnumTypes = traverse.Field<Type[]>("commonEnums").Value;
+            NeosPrimitiveAndEnumTypes = NeosPrimitiveTypes.Concat(NeosEnumTypes).ToArray();
 
             InputBackgroundColorKey.SetSharedDefault(color.White);
             InputBorderColorKey.SetSharedDefault(color.White.SetA(0));
@@ -189,9 +188,23 @@ namespace LogixVisualCustomizer
 
         public static IEnumerable<MethodBase> GenerateGenericMethodTargets(IEnumerable<Type> genericTypes, string methodName, params Type[] baseTypes)
         {
-            return genericTypes
-                .SelectMany(type => baseTypes.Select(baseType => baseType.IsGenericTypeDefinition ? baseType.MakeGenericType(type) : baseType))
-                .Select(type => type.GetMethod(methodName, AccessTools.all));
+            return GenerateGenericMethodTargets(genericTypes, methodName, (IEnumerable<Type>)baseTypes);
+        }
+
+        public static IEnumerable<MethodBase> GenerateGenericMethodTargets(IEnumerable<Type> genericTypes, string methodName, IEnumerable<Type> baseTypes)
+        {
+            return GenerateMethodTargets(methodName,
+                genericTypes.SelectMany(type => baseTypes.Select(baseType => baseType.MakeGenericType(type))));
+        }
+
+        public static IEnumerable<MethodBase> GenerateMethodTargets(string methodName, params Type[] baseTypes)
+        {
+            return GenerateMethodTargets(methodName, (IEnumerable<Type>)baseTypes);
+        }
+
+        public static IEnumerable<MethodBase> GenerateMethodTargets(string methodName, IEnumerable<Type> baseTypes)
+        {
+            return baseTypes.Select(type => type.GetMethod(methodName, AccessTools.all)).Where(m => m != null);
         }
 
         public override void OnEngineInit()

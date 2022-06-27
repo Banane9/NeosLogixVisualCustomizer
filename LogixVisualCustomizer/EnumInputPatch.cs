@@ -35,7 +35,7 @@ namespace LogixVisualCustomizer
         public static IEnumerable<MethodBase> TargetMethods()
         {
             return LogixVisualCustomizer.GenerateGenericMethodTargets(
-                AccessTools.GetTypesFromAssembly(typeof(EnumInput<>).Assembly).Concat(AccessTools.GetTypesFromAssembly(typeof(float4).Assembly)).Where(type => type.IsEnum && !type.IsNested),
+                LogixVisualCustomizer.NeosEnumTypes,
                 "OnGenerateVisual",
                 typeof(EnumInput<>));
         }

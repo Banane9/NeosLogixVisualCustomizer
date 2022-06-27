@@ -21,15 +21,20 @@ namespace LogixVisualCustomizer
         public static IEnumerable<MethodBase> TargetMethods()
         {
             return LogixVisualCustomizer.GenerateGenericMethodTargets(
-                LogixVisualCustomizer.NeosPrimitiveTypes,
-                "OnGenerateVisual",
-                typeof(DualInputOperator<>),
-                typeof(IndexOfFirstMatch<>),
-                typeof(Multiplexer<>),
-                typeof(Demultiplexer<>),
-                typeof(ImpulseMultiplexer),
-                typeof(ImpulseDemultiplexer),
-                typeof(PickRandom<>));
+                    LogixVisualCustomizer.NeosPrimitiveTypes,
+                    "OnGenerateVisual",
+                    typeof(DualInputOperator<>))
+                .Concat(LogixVisualCustomizer.GenerateGenericMethodTargets(
+                    LogixVisualCustomizer.NeosPrimitiveAndEnumTypes,
+                    "OnGenerateVisual",
+                    typeof(IndexOfFirstMatch<>),
+                    typeof(Multiplexer<>),
+                    typeof(Demultiplexer<>),
+                    typeof(PickRandom<>)))
+                .Concat(LogixVisualCustomizer.GenerateMethodTargets(
+                    "OnGenerateVisual",
+                    typeof(ImpulseMultiplexer),
+                    typeof(ImpulseDemultiplexer)));
         }
 
         [HarmonyPostfix]

@@ -76,10 +76,10 @@ namespace LogixVisualCustomizer
         [HarmonyTargetMethods]
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            return AccessTools.GetTypesFromAssembly(typeof(Display_Dummy).Assembly)
-                .Where(t => t.Namespace == "FrooxEngine.LogiX.Display")
-                .Select(t => t.GetMethod("OnGenerateVisual", AccessTools.allDeclared))
-                .Where(m => m != null); // Dummy doesn't have one
+            return LogixVisualCustomizer.GenerateMethodTargets(
+                "OnGenerateVisual",
+                AccessTools.GetTypesFromAssembly(typeof(Display_Dummy).Assembly)
+                    .Where(t => t.Namespace == "FrooxEngine.LogiX.Display"));
         }
     }
 }

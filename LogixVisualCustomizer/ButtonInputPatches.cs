@@ -35,8 +35,11 @@ namespace LogixVisualCustomizer
         [HarmonyTargetMethods]
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            return new[] { typeof(BoolInput), typeof(Bool2Input), typeof(Bool3Input), typeof(Bool4Input), impulseInputType }
-                .Select(t => t.GetMethod("OnGenerateVisual", AccessTools.allDeclared));
+            return LogixVisualCustomizer.GenerateMethodTargets(
+                "OnGenerateVisual",
+                typeof(BoolInput), typeof(Bool2Input),
+                typeof(Bool3Input), typeof(Bool4Input),
+                impulseInputType);
         }
     }
 }
