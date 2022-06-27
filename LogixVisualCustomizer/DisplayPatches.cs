@@ -63,7 +63,7 @@ namespace LogixVisualCustomizer
             mask.Slot.GetComponent<Image>().Sprite.Target = root.GetFullInputBackgroundProvider();
 
             var noAlphaImage = builder.Image();
-            createAlphaRemovalLogix(noAlphaImage.Slot, alphaColorImage.Tint, noAlphaImage.Tint);
+            createAlphaRemovalLogix(root, alphaColorImage.Tint, noAlphaImage.Tint);
 
             var checkers = builder.Image(NeosAssets.Common.Backgrounds.TransparentLight64);
             alphaColorImage.Slot.Parent = checkers.Slot;

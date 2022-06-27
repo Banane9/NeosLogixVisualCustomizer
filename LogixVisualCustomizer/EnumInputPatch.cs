@@ -21,10 +21,11 @@ namespace LogixVisualCustomizer
     [HarmonyPatch]
     internal static class EnumInputPatch
     {
-        private static readonly Type castType = typeof(CastClass<,>);
         private static readonly Dictionary<Type, string[]> enumValueCache = new Dictionary<Type, string[]>();
 
         private static readonly Type fireOnChangeType = typeof(FireOnChange<>);
+        private static readonly Type floatType = typeof(float);
+        private static readonly Type intType = typeof(int);
         private static readonly string NextValueMethod = "NextValue";
 
         private static readonly Type objectType = typeof(object);
@@ -41,17 +42,17 @@ namespace LogixVisualCustomizer
 
         private static void addScrollPositioningLogix(ScrollRect scrollRect, LogixNode enumInput, Type type)
         {
-            var contentRoot = scrollRect.Slot;
+            var contentRoot = enumInput.Slot;
             var valueField = enumInput.TryGetField("Value");
 
-            var valueToObjectCast = contentRoot.AttachComponent(castType.MakeGenericType(type, objectType));
+            var valueToObjectCast = contentRoot.AttachCastNode(type, objectType, false);
             ((ISyncRef)valueToObjectCast.TryGetField("In")).Target = valueField;
 
             var valueToString = contentRoot.AttachComponent<ToString_Object>();
             valueToString.V.Target = (IElementContent<object>)valueToObjectCast;
 
             var contentRootRef = contentRoot.AttachComponent<ReferenceNode<Slot>>();
-            contentRootRef.RefTarget.Target = contentRoot;
+            contentRootRef.RefTarget.Target = scrollRect.Slot;
 
             var findValueSlot = contentRoot.AttachComponent<FindChildByName>();
             findValueSlot.Instance.Target = contentRootRef;
@@ -66,15 +67,15 @@ namespace LogixVisualCustomizer
             var contentRootChildrenDec = contentRoot.AttachComponent<Dec_Int>();
             contentRootChildrenDec.A.Target = contentRootChildren;
 
-            var valueSlotIndexCast = contentRoot.AttachComponent<Cast_int_To_float>();
+            var valueSlotIndexCast = contentRoot.AttachCastNode(intType, floatType, false);
             valueSlotIndexCast.In.Target = valueSlotIndex;
 
-            var contentRootChildrenDecCast = contentRoot.AttachComponent<Cast_int_To_float>();
+            var contentRootChildrenDecCast = contentRoot.AttachCastNode(intType, floatType, false);
             contentRootChildrenDecCast.In.Target = contentRootChildrenDec;
 
             var scrollRectYOffset = contentRoot.AttachComponent<Div_Float>();
-            scrollRectYOffset.A.Target = valueSlotIndexCast;
-            scrollRectYOffset.B.Target = contentRootChildrenDecCast;
+            scrollRectYOffset.A.Target = (IElementContent<float>)valueSlotIndexCast;
+            scrollRectYOffset.B.Target = (IElementContent<float>)contentRootChildrenDecCast;
 
             var scrollRectOffsetPack = contentRoot.AttachComponent<Construct_Float2>();
             scrollRectOffsetPack.Y.Target = scrollRectYOffset;
@@ -96,9 +97,14 @@ namespace LogixVisualCustomizer
             return AccessTools.MethodDelegate<ButtonEventHandler>(enumInput.GetType().GetMethod(method, AccessTools.allDeclared), enumInput);
         }
 
-        [HarmonyPrefix]
-        private static bool OnGenerateVisualPrefix(LogixNode __instance, Slot root)
+        [HarmonyPostfix]
+        private static void OnGenerateVisualPostfix(LogixNode __instance, Slot root)
         {
+            root.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
+            root.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
+
+            return;
+
             var traverse = Traverse.Create(__instance);
             var type = __instance.GetType().GetGenericArguments()[0];
 
@@ -145,7 +151,7 @@ namespace LogixVisualCustomizer
             builder.Style.FlexibleWidth = -1f;
             builder.Button(">>", __instance.getEventHandler(NextValueMethod)).Customize();
 
-            return false;
+            return;
         }
     }
 }
