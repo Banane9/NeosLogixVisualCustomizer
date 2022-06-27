@@ -126,7 +126,7 @@ namespace LogixVisualCustomizer
         private static T createSharedComponent<T>(this World world, string key) where T : Component, new()
         {
             var component = world.AssetsSlot.FindOrAdd(AssetsSlotName).AttachComponent<T>();
-            component.AssignKey(key);
+            component.AssignKey(key, 1);
 
             return component;
         }
