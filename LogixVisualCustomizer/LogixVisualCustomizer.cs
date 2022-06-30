@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using BaseX;
+using CloudX.Shared;
 using CodeX;
 using FrooxEngine;
 using FrooxEngine.LogiX;
@@ -97,7 +98,7 @@ namespace LogixVisualCustomizer
         public override string Author => "Banane9";
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
         public override string Name => "LogixVisualCustomizer";
-        public override string Version => "1.0.0";
+        public override string Version => "1.0.1";
         internal static float4 BackgroundHorizontalSlices => UseBackground ? Config.GetValue(BackgroundHorizontalSlicesKey) : defaultSlices;
         internal static Uri BackgroundSpriteUri => UseBackground ? Config.GetValue(BackgroundSpriteUriKey) : null;
         internal static float4 BackgroundVerticalSlices => UseBackground ? Config.GetValue(BackgroundVerticalSlicesKey) : defaultSlices;
@@ -153,6 +154,7 @@ namespace LogixVisualCustomizer
 
             NeosEnumTypes = AccessTools.GetTypesFromAssembly(typeof(EnumInput<>).Assembly)
                                 .Concat(AccessTools.GetTypesFromAssembly(typeof(float4).Assembly))
+                                .Concat(AccessTools.GetTypesFromAssembly(typeof(SessionAccessLevel).Assembly))
                                 .Where(type => type.IsEnum && !type.IsNested)
                                 .ToArray();
 
