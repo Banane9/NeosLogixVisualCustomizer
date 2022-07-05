@@ -21,11 +21,7 @@ namespace LogixVisualCustomizer
 
         public static void Patch(Harmony harmony)
         {
-            var genericTypes = Traverse.Create(typeof(GenericTypes)).Field<Type[]>("neosPrimitives").Value
-                .Where(type => type.Name != "String")
-                .AddItem(typeof(object));
-
-            foreach (var type in genericTypes)
+            foreach (var type in LogixVisualCustomizer.NeosPrimitiveTypes)
             {
                 var createdType = textFieldNodeBaseType.MakeGenericType(type);
                 var methodInfo = createdType.GetMethod("OnGenerateVisual", AccessTools.allDeclared);

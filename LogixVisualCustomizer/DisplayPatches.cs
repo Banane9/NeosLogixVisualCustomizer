@@ -39,11 +39,16 @@ namespace LogixVisualCustomizer
         private static void OnGenerateVisualPostfix(LogixNode __instance, Slot root)
         {
             var type = __instance.GetType();
-            root.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeDisplay);
 
             // Only create special display for color
             if (type != colorType)
+            {
+                root.GetComponentsInChildren<Text>().ForEach(VisualCustomizing.CustomizeLabel);
+
                 return;
+            }
+
+            root.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeDisplay);
 
             var colorDisplayRoot = root.GetComponentInChildren<HorizontalLayout>().Slot;
             var alphaColorImage = colorDisplayRoot.GetComponentInChildren<Image>();

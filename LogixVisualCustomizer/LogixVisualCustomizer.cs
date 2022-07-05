@@ -98,7 +98,7 @@ namespace LogixVisualCustomizer
         public override string Author => "Banane9";
         public override string Link => "https://github.com/Banane9/NeosLogixVisualCustomizer";
         public override string Name => "LogixVisualCustomizer";
-        public override string Version => "1.0.1";
+        public override string Version => "1.1.0";
         internal static float4 BackgroundHorizontalSlices => UseBackground ? Config.GetValue(BackgroundHorizontalSlicesKey) : defaultSlices;
         internal static Uri BackgroundSpriteUri => UseBackground ? Config.GetValue(BackgroundSpriteUriKey) : null;
         internal static float4 BackgroundVerticalSlices => UseBackground ? Config.GetValue(BackgroundVerticalSlicesKey) : defaultSlices;
@@ -160,6 +160,7 @@ namespace LogixVisualCustomizer
 
             NeosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
                                     .Where(type => type.Name != "String")
+                                    .AddItem(typeof(Rect))
                                     .AddItem(typeof(dummy))
                                     .AddItem(typeof(object))
                                     .ToArray();
@@ -206,7 +207,7 @@ namespace LogixVisualCustomizer
 
         public static IEnumerable<MethodBase> GenerateMethodTargets(string methodName, IEnumerable<Type> baseTypes)
         {
-            return baseTypes.Select(type => type.GetMethod(methodName, AccessTools.all)).Where(m => m != null);
+            return baseTypes.Select(type => type.GetMethod(methodName, AccessTools.allDeclared)).Where(m => m != null);
         }
 
         public override void OnEngineInit()
