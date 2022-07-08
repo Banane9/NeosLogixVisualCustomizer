@@ -1,7 +1,9 @@
 ﻿using FrooxEngine;
 using FrooxEngine.LogiX;
+using FrooxEngine.LogiX.Math.Binary;
 using FrooxEngine.LogiX.Operators;
 using FrooxEngine.LogiX.ProgramFlow;
+using FrooxEngine.LogiX.String;
 using FrooxEngine.LogiX.Utility;
 using FrooxEngine.UIX;
 using HarmonyLib;
@@ -28,13 +30,12 @@ namespace LogixVisualCustomizer
                     LogixVisualCustomizer.NeosPrimitiveAndEnumTypes,
                     "OnGenerateVisual",
                     typeof(IndexOfFirstMatch<>),
-                    typeof(Multiplexer<>),
-                    typeof(Demultiplexer<>),
-                    typeof(PickRandom<>)))
+                    typeof(Demultiplexer<>)))
                 .Concat(LogixVisualCustomizer.GenerateMethodTargets(
                     "OnGenerateVisual",
-                    typeof(ImpulseMultiplexer),
-                    typeof(ImpulseDemultiplexer)));
+                    typeof(VariableInputOutputNode),
+                    typeof(FormatString),
+                    typeof(BooleanCounter)));
         }
 
         [HarmonyPostfix]
