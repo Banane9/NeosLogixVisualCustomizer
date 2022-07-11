@@ -18,7 +18,6 @@ using System.Threading.Tasks;
 
 namespace LogixVisualCustomizer
 {
-    [HarmonyPatch]
     internal static class EnumInputPatch
     {
         private static readonly Dictionary<Type, string[]> enumValueCache = new Dictionary<Type, string[]>();
@@ -100,9 +99,6 @@ namespace LogixVisualCustomizer
         [HarmonyPostfix]
         private static void OnGenerateVisualPostfix(LogixNode __instance, Slot root)
         {
-            root.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
-            root.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
-
             return;
 
             var traverse = Traverse.Create(__instance);

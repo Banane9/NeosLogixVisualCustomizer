@@ -152,18 +152,23 @@ namespace LogixVisualCustomizer
         {
             var traverse = Traverse.Create(typeof(GenericTypes));
 
-            NeosEnumTypes = AccessTools.GetTypesFromAssembly(typeof(EnumInput<>).Assembly)
-                                .Concat(AccessTools.GetTypesFromAssembly(typeof(float4).Assembly))
-                                .Concat(AccessTools.GetTypesFromAssembly(typeof(SessionAccessLevel).Assembly))
-                                .Where(type => type.IsEnum && !type.IsNested)
-                                .ToArray();
-
             NeosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
                                     .Where(type => type.Name != "String")
                                     .AddItem(typeof(Rect))
                                     .AddItem(typeof(dummy))
                                     .AddItem(typeof(object))
                                     .ToArray();
+
+            NeosEnumTypes = AccessTools.GetTypesFromAssembly(typeof(EnumInput<>).Assembly)
+                                .Concat(AccessTools.GetTypesFromAssembly(typeof(float4).Assembly))
+                                .Concat(AccessTools.GetTypesFromAssembly(typeof(SessionAccessLevel).Assembly))
+                                .Where(type => type.IsEnum)
+                                .Where(PublicTypesFilter)
+                                .Where(NoGenericTypesFilter)
+                                //.SelectMany(type => type.IsNested && type.DeclaringType.IsGenericType ?
+                                //    NeosPrimitiveTypes.Select(prim => type.DeclaringType.MakeGenericType(prim))
+                                //    : new[] { type })
+                                .ToArray();
 
             NeosPrimitiveAndEnumTypes = NeosPrimitiveTypes.Concat(NeosEnumTypes).ToArray();
 
@@ -219,6 +224,23 @@ namespace LogixVisualCustomizer
             Harmony harmony = new Harmony($"{Author}.{Name}");
             harmony.PatchAll();
             TextFieldPatch.Patch(harmony);
+        }
+
+        private static bool GenericTypesFilter(Type type)
+        {
+            return (!type.IsNested && type.IsGenericType)
+                || (type.IsNested && (type.IsGenericType || GenericTypesFilter(type.DeclaringType)));
+        }
+
+        private static bool NoGenericTypesFilter(Type type)
+        {
+            return !GenericTypesFilter(type);
+        }
+
+        private static bool PublicTypesFilter(Type type)
+        {
+            return (!type.IsNested && type.IsPublic)
+                || (type.IsNested && type.IsNestedPublic && PublicTypesFilter(type.DeclaringType));
         }
 
         private void OnConfigurationChanged(ConfigurationChangedEvent changeEvent)

@@ -2,6 +2,7 @@
 using FrooxEngine;
 using FrooxEngine.LogiX;
 using FrooxEngine.LogiX.Cast;
+using FrooxEngine.LogiX.Input;
 using FrooxEngine.UIX;
 using HarmonyLib;
 using System;
@@ -15,12 +16,14 @@ namespace LogixVisualCustomizer
     [HarmonyPatch(typeof(LogixNode))]
     internal static class LogixNodePatch
     {
+        private static readonly Type enumInputType = typeof(EnumInput<>);
         private static readonly Type valueRelayType = typeof(RelayNode<>);
 
         [HarmonyPostfix]
         [HarmonyPatch("GenerateUI")]
         private static void GenerateUIPostfix(LogixNode __instance, Slot root)
         {
+            var type = __instance.GetType();
             var backgroundSlot = root.FindInChildren("Image");
             var background = backgroundSlot.GetComponent<Image>();
 
@@ -34,7 +37,6 @@ namespace LogixVisualCustomizer
             else
                 background.Tint.DriveFromSharedSetting(LogixVisualCustomizer.NodeBackgroundColorKey, LogixVisualCustomizer.Config);
 
-            var type = __instance.GetType();
             if (__instance is ImpulseRelay || __instance is ICastNode || (type.IsGenericType && type.GetGenericTypeDefinition() == valueRelayType))
                 return;
 
@@ -48,6 +50,13 @@ namespace LogixVisualCustomizer
             borderImage.Sprite.Target = root.GetNodeBorderProvider();
 
             backgroundSlot.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeLabel, cacheItems: true);
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == enumInputType)
+                __instance.RunInUpdates(0, () =>
+                {
+                    root.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
+                    root.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
+                });
         }
     }
 }
