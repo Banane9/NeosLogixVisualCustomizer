@@ -150,4 +150,9 @@ namespace LogixVisualCustomizer
             return;
         }
     }
+
+    [HarmonyPatch(typeof(LogixNode), "GenerateUI")]
+    internal class EnumPatch : GenericPatch<EnumPatch, LogixNode>
+    {
+    }
 }

@@ -65,6 +65,7 @@
     <Compile Include="ButtonInputPatches.cs" />
     <Compile Include="DisplayPatches.cs" />
     <Compile Include="EnumInputPatch.cs" />
+    <Compile Include="GenericPatch.cs" />
     <Compile Include="LogixHelperPatch.cs" />
     <Compile Include="ModifiableInputNodePatches.cs" />
     <Compile Include="DynamicVariableInputPatch.cs" />
@@ -79,6 +80,7 @@
   <ItemGroup>
     <None Include="Assets\Border.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)\$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\NeosVR\nml_mods\"</PostBuildEvent>
