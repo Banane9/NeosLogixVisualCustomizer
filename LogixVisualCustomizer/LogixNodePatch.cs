@@ -16,17 +16,7 @@ namespace LogixVisualCustomizer
     [HarmonyPatch(typeof(LogixNode))]
     internal class LogixNodePatch : GenericPatch<LogixNodePatch, LogixNode>
     {
-        private static readonly Type enumInputType = typeof(EnumInput<>);
         private static readonly Type valueRelayType = typeof(RelayNode<>);
-
-        static LogixNodePatch()
-        {
-            RegisterPatch(PatchPosition.Postfix, "GenerateUI", typeof(EnumInput<>), instance => instance.RunInUpdates(0, () =>
-            {
-                instance.ActiveVisual.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
-                instance.ActiveVisual.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
-            }));
-        }
 
         [HarmonyPostfix]
         [HarmonyPatch("GenerateUI")]
@@ -60,7 +50,7 @@ namespace LogixVisualCustomizer
 
             backgroundSlot.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeLabel, cacheItems: true);
 
-            CallPatches(PatchPosition.Postfix, "GenerateUI", __instance);
+            __instance.RunInUpdates(0, () => CallPatches(PatchPosition.Postfix, "GenerateUI", __instance));
         }
     }
 }

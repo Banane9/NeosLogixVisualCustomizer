@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 
 namespace LogixVisualCustomizer
 {
+    [HarmonyPatch]
     internal static class EnumInputPatch
     {
         private static readonly Dictionary<Type, string[]> enumValueCache = new Dictionary<Type, string[]>();
@@ -29,15 +30,6 @@ namespace LogixVisualCustomizer
 
         private static readonly Type objectType = typeof(object);
         private static readonly string PreviousValueMethod = "PreviousValue";
-
-        [HarmonyTargetMethods]
-        public static IEnumerable<MethodBase> TargetMethods()
-        {
-            return LogixVisualCustomizer.GenerateGenericMethodTargets(
-                LogixVisualCustomizer.NeosEnumTypes,
-                "OnGenerateVisual",
-                typeof(EnumInput<>));
-        }
 
         private static void addScrollPositioningLogix(ScrollRect scrollRect, LogixNode enumInput, Type type)
         {
@@ -91,26 +83,23 @@ namespace LogixVisualCustomizer
             ((Impulse)valueFireOnChange.TryGetField("Pulse")).Target = writeScrollRectOffset.Write;
         }
 
-        private static ButtonEventHandler getEventHandler(this LogixNode enumInput, string method)
+        private static void GenerateUIPostfix(LogixNode instance)
         {
-            return AccessTools.MethodDelegate<ButtonEventHandler>(enumInput.GetType().GetMethod(method, AccessTools.allDeclared), enumInput);
-        }
+            instance.ActiveVisual.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
+            instance.ActiveVisual.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
 
-        [HarmonyPostfix]
-        private static void OnGenerateVisualPostfix(LogixNode __instance, Slot root)
-        {
             return;
 
-            var traverse = Traverse.Create(__instance);
-            var type = __instance.GetType().GetGenericArguments()[0];
+            var traverse = Traverse.Create(instance);
+            var type = instance.GetType().GetGenericArguments()[0];
 
-            var builder = traverse.Method("GenerateUI", root, 256f, 40f).GetValue<UIBuilder>();
+            var builder = traverse.Method("GenerateUI", instance.ActiveVisual, 256f, 40f).GetValue<UIBuilder>();
 
             builder.HorizontalLayout(4, 0, 4, 0, 0, null);
 
             builder.Style.MinWidth = 32;
             builder.Style.PreferredHeight = 32;
-            builder.Button("<<", __instance.getEventHandler(PreviousValueMethod)).Customize();
+            builder.Button("<<", instance.getEventHandler(PreviousValueMethod)).Customize();
 
             builder.Style.FlexibleWidth = 1;
             var scrollRect = builder.ScrollArea();
@@ -136,7 +125,7 @@ namespace LogixVisualCustomizer
                 text.Slot.Name = value;
             }
 
-            addScrollPositioningLogix(scrollRect, __instance, type);
+            addScrollPositioningLogix(scrollRect, instance, type);
 
             //SyncRef<Text> valueDisplay = this._valueDisplay;
             //localeString = "---";
@@ -145,14 +134,21 @@ namespace LogixVisualCustomizer
             builder.NestOut();
 
             builder.Style.FlexibleWidth = -1f;
-            builder.Button(">>", __instance.getEventHandler(NextValueMethod)).Customize();
+            builder.Button(">>", instance.getEventHandler(NextValueMethod)).Customize();
 
             return;
         }
-    }
 
-    [HarmonyPatch(typeof(LogixNode), "GenerateUI")]
-    internal class EnumPatch : GenericPatch<EnumPatch, LogixNode>
-    {
+        private static ButtonEventHandler getEventHandler(this LogixNode enumInput, string method)
+        {
+            return AccessTools.MethodDelegate<ButtonEventHandler>(enumInput.GetType().GetMethod(method, AccessTools.allDeclared), enumInput);
+        }
+
+        [HarmonyPrepare]
+        private static bool Initialize()
+        {
+            LogixNodePatch.RegisterPatch(PatchPosition.Postfix, "GenerateUI", typeof(EnumInput<>), GenerateUIPostfix);
+            return false;
+        }
     }
 }
