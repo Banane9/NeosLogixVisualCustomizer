@@ -43,12 +43,12 @@ namespace LogixVisualCustomizer
             // Only create special display for color
             if (type != colorType)
             {
-                root.GetComponentsInChildren<Text>().ForEach(VisualCustomizing.CustomizeLabel);
+                root.GetComponentsInChildren<Text>().ForEach(VisualCustomizing.CustomizeDisplay);
 
                 return;
             }
 
-            root.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeDisplay);
+            root.ForeachComponentInChildren<Text>(VisualCustomizing.CustomizeColor);
 
             var colorDisplayRoot = root.GetComponentInChildren<HorizontalLayout>().Slot;
             var alphaColorImage = colorDisplayRoot.GetComponentInChildren<Image>();

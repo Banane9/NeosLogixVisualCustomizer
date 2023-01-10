@@ -45,16 +45,22 @@ namespace LogixVisualCustomizer
             buttonSlot.AddBorder(inputBorder, LogixVisualCustomizer.InputBorderColorKey);
 
             var buttonText = buttonSlot.GetComponentInChildren<Text>();
-            buttonText.CustomizeDisplay();
+            buttonText.CustomizeColor();
 
             var textRect = buttonText.RectTransform;
             textRect.AnchorMin.Value = new float2(0.1f, 0.1f);
             textRect.AnchorMax.Value = new float2(0.9f, 0.9f);
         }
 
-        public static void CustomizeDisplay(this Text text)
+        public static void CustomizeColor(this Text text)
         {
             text.Color.DriveFromSharedSetting(LogixVisualCustomizer.TextColorKey, LogixVisualCustomizer.Config);
+        }
+
+        public static void CustomizeDisplay(this Text text)
+        {
+            text.CustomizeLabel();
+            text.HorizontalAlign.Value = CodeX.TextHorizontalAlignment.Justify;
         }
 
         public static void CustomizeHorizontal(this Button[] buttons)
@@ -74,7 +80,7 @@ namespace LogixVisualCustomizer
             textPadding.AttachComponent<LayoutElement>();
             text.Slot.Parent = textPadding;
 
-            text.CustomizeDisplay();
+            text.CustomizeColor();
             text.RectTransform.OffsetMin.Value = new float2(8, 0);
             text.RectTransform.OffsetMax.Value = new float2(-8, 0);
         }

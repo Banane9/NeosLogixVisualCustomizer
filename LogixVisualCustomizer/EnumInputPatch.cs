@@ -86,7 +86,7 @@ namespace LogixVisualCustomizer
         private static void GenerateUIPostfix(LogixNode instance)
         {
             instance.ActiveVisual.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
-            instance.ActiveVisual.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeDisplay);
+            instance.ActiveVisual.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeColor);
 
             return;
 
@@ -121,7 +121,7 @@ namespace LogixVisualCustomizer
             foreach (var value in values)
             {
                 var text = builder.Text(value);
-                text.CustomizeDisplay();
+                text.CustomizeColor();
                 text.Slot.Name = value;
             }
 
