@@ -65,6 +65,7 @@
     <Compile Include="AudioClipInputPatch.cs" />
     <Compile Include="ButtonInputPatches.cs" />
     <Compile Include="DisplayPatches.cs" />
+    <Compile Include="EnumDropdown.cs" />
     <Compile Include="EnumInputPatch.cs" />
     <Compile Include="GenericPatch.cs" />
     <Compile Include="LogixHelperPatch.cs" />

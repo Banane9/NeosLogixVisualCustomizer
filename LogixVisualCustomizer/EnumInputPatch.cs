@@ -85,6 +85,14 @@ namespace LogixVisualCustomizer
 
         private static void GenerateUIPostfix(LogixNode instance)
         {
+            if (instance.ActiveVisual.GetComponentInChildren<HorizontalLayout>()?.Slot is not Slot horizontal)
+                return;
+
+            var ui = new UIBuilder(horizontal);
+            ui.Style.MinWidth = 32f;
+
+            EnumDropdown.AddDropdownBtn(ui, instance.TryGetField("Value"));
+
             instance.ActiveVisual.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ForEach(VisualCustomizing.Customize);
             instance.ActiveVisual.GetComponentsInChildren<Text>(text => text.Slot.Parent.GetComponent<Button>() == null).ForEach(VisualCustomizing.CustomizeColor);
 
