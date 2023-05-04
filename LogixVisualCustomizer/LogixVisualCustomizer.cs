@@ -150,9 +150,7 @@ namespace LogixVisualCustomizer
 
         static LogixVisualCustomizer()
         {
-            var traverse = Traverse.Create(typeof(GenericTypes));
-
-            NeosPrimitiveTypes = traverse.Field<Type[]>("neosPrimitives").Value
+            NeosPrimitiveTypes = GenericTypes.neosPrimitives
                                     .Where(type => type.Name != "String")
                                     .AddItem(typeof(Rect))
                                     .AddItem(typeof(dummy))

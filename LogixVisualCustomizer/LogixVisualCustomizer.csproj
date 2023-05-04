@@ -33,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -51,7 +52,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="FrooxEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\NeosVR\Neos_Data\Managed\FrooxEngine.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\NeosVR\Neos_Data\Managed\Public\FrooxEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="NeosModLoader">
@@ -64,6 +65,7 @@
     <Compile Include="Assets.cs" />
     <Compile Include="AudioClipInputPatch.cs" />
     <Compile Include="ButtonInputPatches.cs" />
+    <Compile Include="ConnectionWirePatches.cs" />
     <Compile Include="DisplayPatches.cs" />
     <Compile Include="EnumDropdown.cs" />
     <Compile Include="EnumInputPatch.cs" />
@@ -87,10 +89,4 @@
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)\$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\NeosVR\nml_mods\"</PostBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\IgnoresAccessChecksToGenerator.0.5.0\build\IgnoresAccessChecksToGenerator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IgnoresAccessChecksToGenerator.0.5.0\build\IgnoresAccessChecksToGenerator.targets'))" />
-  </Target>
 </Project>

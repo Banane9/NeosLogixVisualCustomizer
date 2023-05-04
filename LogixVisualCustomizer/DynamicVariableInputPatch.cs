@@ -49,8 +49,7 @@ namespace LogixVisualCustomizer
                 var memberEditor = root.AttachComponent<PrimitiveMemberEditor>();
                 memberEditor.Continuous.Value = true;
 
-                var editor = Traverse.Create(memberEditor);
-                editor.Field<RelayRef<IField>>("_target").Value.Target = instance.Field<Sync<string>>("_variableName").Value;
+                memberEditor._target.Target = instance.Field<Sync<string>>("_variableName").Value;
 
                 var builder = instance.Method("GenerateUI", root, 384f, 76f).GetValue<UIBuilder>();
 
@@ -67,13 +66,13 @@ namespace LogixVisualCustomizer
                 horizontal.ForceExpandWidth.Value = false;
 
                 builder.Style.MinWidth = 32;
-                var nullButton = builder.Button("∅", AccessTools.MethodDelegate<ButtonEventHandler>(LogixVisualCustomizer.PrimitiveMemberEditorOnReset, memberEditor));
-                editor.Field<SyncRef<Button>>("_resetButton").Value.Target = nullButton;
+                var nullButton = builder.Button("∅", memberEditor.OnReset);
+                memberEditor._resetButton.Target = nullButton;
 
                 builder.Style.FlexibleWidth = 1;
                 var nameInput = builder.TextField("", true, null, false);
-                editor.Field<SyncRef<TextEditor>>("_textEditor").Value.Target = nameInput.Editor;
-                editor.Field<FieldDrive<string>>("_textDrive").Value.Target = nameInput.Text.Content;
+                memberEditor._textEditor.Target = nameInput.Editor;
+                memberEditor._textDrive.Target = nameInput.Text.Content;
 
                 new[] { nullButton, nameInput.Slot.GetComponent<Button>() }.CustomizeHorizontal();
 
@@ -85,7 +84,7 @@ namespace LogixVisualCustomizer
             {
                 return LogixVisualCustomizer.GenerateGenericMethodTargets(
                     LogixVisualCustomizer.NeosPrimitiveAndEnumTypes,
-                    "OnGenerateVisual",
+                    nameof(DynamicVariableInput<dummy>.OnGenerateVisual),
                     typeof(DynamicVariableInput<>));
             }
         }

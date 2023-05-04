@@ -16,7 +16,7 @@ namespace LogixVisualCustomizer
     internal static class AudioClipInputPatch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("Label", MethodType.Getter)]
+        [HarmonyPatch(nameof(AudioClipInput.Label), MethodType.Getter)]
         private static bool LabelGetterPrefix(ref string __result)
         {
             __result = "Audio Clip";
@@ -25,27 +25,26 @@ namespace LogixVisualCustomizer
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("OnGenerateVisual")]
+        [HarmonyPatch(nameof(AudioClipInput.OnGenerateVisual))]
         private static bool OnGenerateVisualPrefix(AudioClipInput __instance, Slot root, AssetRef<AudioClip> ___Clip)
         {
-            var builder = Traverse.Create(__instance).Method("GenerateUI", root, 128, 72).GetValue<UIBuilder>();
+            var builder = __instance.GenerateUI(root, 128, 72);
 
             var refEditor = root.AttachComponent<RefEditor>();
-            var editor = Traverse.Create(refEditor);
 
             builder.Panel();
 
             var button = builder.Button("");
             button.Customize();
-            button.Pressed.Target = AccessTools.MethodDelegate<ButtonEventHandler>(LogixVisualCustomizer.RefEditorRemovePressed, refEditor);
-            button.Released.Target = AccessTools.MethodDelegate<ButtonEventHandler>(LogixVisualCustomizer.RefEditorSetReference, refEditor);
+            button.Pressed.Target = refEditor.RemovePressed;
+            button.Released.Target = refEditor.SetReference;
 
             var padding = button.RectTransform;
             padding.OffsetMin.Value = new float2(4, 0);
             padding.OffsetMax.Value = new float2(-4, 0);
 
-            editor.Field<RelayRef<ISyncRef>>("_targetRef").Value.Target = ___Clip;
-            editor.Field<FieldDrive<string>>("_textDrive").Value.Target = button.Slot.GetComponentInChildren<Text>().Content;
+            refEditor._targetRef.Target = ___Clip;
+            refEditor._textDrive.Target = button.Slot.GetComponentInChildren<Text>().Content;
 
             return false;
         }

@@ -28,7 +28,7 @@ namespace LogixVisualCustomizer
 
             var setA = root.AttachComponent<ColorSetAlpha>();
             setA.Color.Target = source;
-            setA.Value.Target = Traverse.Create(value).Field<Sync<float>>("_value").Value;
+            setA.Value.Target = value._value;
 
             var driver = root.AttachComponent<DriverNode<color>>();
             driver.Source.Target = setA;
@@ -82,7 +82,7 @@ namespace LogixVisualCustomizer
         private static IEnumerable<MethodBase> TargetMethods()
         {
             return LogixVisualCustomizer.GenerateMethodTargets(
-                "OnGenerateVisual",
+                nameof(Display_Dummy.OnGenerateVisual),
                 AccessTools.GetTypesFromAssembly(typeof(Display_Dummy).Assembly)
                     .Where(t => t.Namespace == "FrooxEngine.LogiX.Display"));
         }

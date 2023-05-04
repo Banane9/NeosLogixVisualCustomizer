@@ -34,24 +34,23 @@ namespace LogixVisualCustomizer
         [HarmonyPatch("OnGenerateVisual")]
         internal static bool OnGenerateVisualPrefix<T>(TextFieldNodeBase<T> __instance, Slot root)
         {
-            var traverse = Traverse.Create(__instance);
             var leftNull = LogixVisualCustomizer.EnableLeftNullButton;
 
-            var minWidth = traverse.Property<float>("MinWidth").Value;
-            var fields = traverse.Property<int>("Fields").Value;
+            var minWidth = __instance.MinWidth;
+            var fields = __instance.Fields;
 
-            var builder = traverse.Method("GenerateUI", root, minWidth, 4f * (fields + 1) + 32f * fields).GetValue<UIBuilder>();
+            var builder = __instance.GenerateUI(root, minWidth, 4f * (fields + 1) + 32f * fields);
 
             var inputBackground = leftNull ? root.GetLeftInputBackgroundProvider() : root.GetHorizontalMiddleInputBackgroundProvider();
             var inputBorder = leftNull ? root.GetLeftInputBorderProvider() : root.GetHorizontalMiddleInputBorderProvider();
 
-            if (traverse.Property<bool>("NullButton").Value)
+            if (__instance.NullButton)
             {
                 builder.HorizontalLayout(4, 0);
                 builder.Style.MinHeight = 32;
                 builder.Style.MinWidth = 32;
 
-                var button = builder.Button("∅", __instance.getOnSetNull());
+                var button = builder.Button("∅", __instance.OnSetNull);
                 button.Slot.OrderOffset = leftNull ? -1 : 1;
                 button.Customize(inputBackground, inputBorder);
 
@@ -65,7 +64,7 @@ namespace LogixVisualCustomizer
 
             for (int i = 0; i < fields; i++)
             {
-                traverse.Method("GenerateTextField", builder, i).GetValue();
+                __instance.GenerateTextField(builder, i);
             }
 
             var buttons = vertical.GetComponentsInChildren<Button>(LogixVisualCustomizer.ButtonFilter).ToArray();
